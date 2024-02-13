@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
-            android:text="@string/user_login"
+            android:text="@string/user_signup"
             android:textColor="@color/black"
             android:textSize="20sp" />
 
@@ -31,7 +31,7 @@
             android:textSize="12sp" />
 
 
-        <!--        start of email field-->
+        <!--        start of consumer-no field-->
 
         <TextView
             android:id="@+id/consumerNoHeading"
@@ -71,7 +71,93 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <!--        end of email field-->
+        <!--        end of consumer-no field-->
+
+
+        <!--        start of phone-no field-->
+
+        <TextView
+            android:id="@+id/phoneNoHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/consumerNoLayout"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/phone_no"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phoneNoLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/phoneNoHeading"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            app:hintEnabled="false"
+            app:hintTextColor="@color/hint_color"
+
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phoneNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_txt_bg"
+                android:hint="@string/phone_no_hint"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/black"
+                android:textColorHint="@color/hint_color"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!--        end of phone-no field-->
+
+        <!--        start of address-no field-->
+
+        <TextView
+            android:id="@+id/addressHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/phoneNoLayout"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/address"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/addressHeading"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            app:hintEnabled="false"
+            app:hintTextColor="@color/hint_color"
+
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_txt_bg"
+                android:hint="@string/address_hint"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/black"
+                android:textColorHint="@color/hint_color"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!--        end of address-no field-->
+
 
         <!--        start of password field-->
 
@@ -79,7 +165,7 @@
             android:id="@+id/password_heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/consumerNoLayout"
+            android:layout_below="@+id/addressLayout"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:text="@string/password"
@@ -112,10 +198,10 @@
 
         <!--        end of password field-->
 
-        <!--        start of login button-->
+        <!--        start of sign-up button-->
 
         <Button
-            android:id="@+id/loginBtn"
+            android:id="@+id/signUpBtn"
             android:layout_width="match_parent"
             android:layout_height="50sp"
             android:layout_below="@id/passwordLayout"
@@ -123,22 +209,21 @@
             android:layout_marginTop="30dp"
             android:layout_marginEnd="20dp"
             android:backgroundTint="@color/app_color"
-            android:text="@string/login"
+            android:text="@string/signup"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:cornerRadius="6dp" />
 
-        <!--        end of login button-->
+        <!--        end of sign-up button-->
 
 
-
-        <!--        start of don't have an account layout-->
+        <!--        start of have an account layout-->
 
         <RelativeLayout
             android:id="@+id/haveAccountLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/loginBtn"
+            android:layout_below="@+id/signUpBtn"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
@@ -149,16 +234,16 @@
                 android:id="@+id/have_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dont_have_account"
+                android:text="@string/have_account"
                 android:textColor="@color/hint_color" />
 
             <TextView
-                android:id="@+id/signUp"
+                android:id="@+id/signIn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_toEndOf="@+id/have_account"
-                android:text="@string/sign_up"
+                android:text="@string/sign_in"
                 android:textColor="@color/app_color" />
         </RelativeLayout>
 
