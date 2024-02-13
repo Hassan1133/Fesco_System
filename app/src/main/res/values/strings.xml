@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Fesco</string>
+    <string name="email_hint">example@gmail.com</string>
+    <string name="login">Login</string>
+    <string name="user_hint">User Login</string>
+    <string name="sdo_hint">Sub Divisional Officer Login</string>
+    <string name="xen_hint">Executive Engineer Login</string>
+    <string name="ls_hint">Line Superintendent Login</string>
+    <string name="lm_hint">Lineman Login</string>
+    <string name="signup">Sign-up</string>
+    <string name="enter_details">Please enter your details</string>
+    <string name="password_hint">enter atleast 6 words</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="consumer_no">Consumer No</string>
+    <string name="consumer_no_hint">enter your consumer number</string>
+</resources>
