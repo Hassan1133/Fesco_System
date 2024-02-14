@@ -10,15 +10,15 @@ import com.example.fesco.fragments.SDOLoginFragment
 import com.example.fesco.fragments.UserLoginFragment
 import com.example.fesco.fragments.XENLoginFragment
 
-class ViewPagerAdp (fm: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fm, lifecycle) {
+class ViewPagerAdp(fm: FragmentManager, lifecycle: Lifecycle) :
+    FragmentStateAdapter(fm, lifecycle) {
 
     override fun getItemCount(): Int {
         return 5
     }
 
     override fun createFragment(position: Int): Fragment {
-        return when(position)
-        {
+        return when (position) {
             0 -> UserLoginFragment()
             1 -> XENLoginFragment()
             2 -> SDOLoginFragment()
