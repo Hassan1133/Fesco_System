@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    >
+    android:fillViewport="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -65,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_txt_bg"
                 android:hint="@string/consumer_no_hint"
-                android:inputType="textEmailAddress"
+                android:inputType="number"
                 android:textColor="@color/black"
                 android:textColorHint="@color/hint_color"
                 android:textSize="14sp" />
@@ -75,6 +74,46 @@
 
         <!--        end of consumer-no field-->
 
+        <!--        start of name-no field-->
+
+        <TextView
+            android:id="@+id/nameHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/consumerNoLayout"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/name"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/nameHeading"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            app:hintEnabled="false"
+            app:hintTextColor="@color/hint_color">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_txt_bg"
+                android:hint="@string/name_hint"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:textColorHint="@color/hint_color"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!--        end of name-no field-->
+
 
         <!--        start of phone-no field-->
 
@@ -82,7 +121,7 @@
             android:id="@+id/phoneNoHeading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/consumerNoLayout"
+            android:layout_below="@+id/nameLayout"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:text="@string/phone_no"
@@ -108,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_txt_bg"
                 android:hint="@string/phone_no_hint"
-                android:inputType="textEmailAddress"
+                android:inputType="number"
                 android:textColor="@color/black"
                 android:textColorHint="@color/hint_color"
                 android:textSize="14sp" />
@@ -150,7 +189,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_txt_bg"
                 android:hint="@string/address_hint"
-                android:inputType="textEmailAddress"
+                android:inputType="text"
                 android:textColor="@color/black"
                 android:textColorHint="@color/hint_color"
                 android:textSize="14sp" />

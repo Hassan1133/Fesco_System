@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "80540671977",
+    "project_id": "fypdb-7058d",
+    "storage_bucket": "fypdb-7058d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80540671977:android:3baccfbc366f7d1cd6b578",
+        "android_client_info": {
+          "package_name": "com.example.fesco"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSIv2ApmU72HNkUhOTOOiumiVbPbvvETk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -15,12 +15,14 @@
     <string name="password_hint">enter atleast 6 words</string>
     <string name="password">Password</string>
     <string name="email">Email</string>
-    <string name="consumer_no">Consumer No</string>
+    <string name="name">Name</string>
+    <string name="consumer_no">Consumer ID</string>
     <string name="have_account">Have an Account ?</string>
     <string name="dont_have_account">Don\'t have an Account ?</string>
     <string name="phone_no">Phone No</string>
     <string name="address">Address</string>
-    <string name="consumer_no_hint">enter your consumer number</string>
+    <string name="consumer_no_hint">enter your consumer ID</string>
+    <string name="name_hint">enter your full name</string>
     <string name="address_hint">enter your address</string>
     <string name="phone_no_hint">enter your phone number</string>
     <!-- TODO: Remove or change this placeholder text -->

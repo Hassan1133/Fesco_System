@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_txt_bg"
                 android:hint="@string/consumer_no_hint"
-                android:inputType="textEmailAddress"
+                android:inputType="number"
                 android:textColor="@color/black"
                 android:textColorHint="@color/hint_color"
                 android:textSize="14sp" />

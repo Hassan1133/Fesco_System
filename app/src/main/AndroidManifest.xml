@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Fesco"
         tools:targetApi="31">
         <activity
+            android:name=".activities.UserMainActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.UserSignUpActivity"
             android:configChanges="orientation"
             android:exported="false"
