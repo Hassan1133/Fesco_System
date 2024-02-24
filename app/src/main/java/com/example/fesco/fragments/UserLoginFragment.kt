@@ -1,6 +1,5 @@
 package com.example.fesco.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,21 +9,20 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Toast
 import com.example.fesco.R
-import com.example.fesco.activities.LoginActivity
 import com.example.fesco.activities.UserMainActivity
 import com.example.fesco.activities.UserSignUpActivity
 import com.example.fesco.databinding.FragmentUserLoginBinding
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 class UserLoginFragment : Fragment(), OnClickListener {
 
     private lateinit var binding: FragmentUserLoginBinding;
 
-    private val usersRef: String = "Users"
+    private lateinit var usersRef: String
 
-    // Initialize firestore
-    private val db = Firebase.firestore
+    private lateinit var firestoreDb: FirebaseFirestore
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,6 +36,10 @@ class UserLoginFragment : Fragment(), OnClickListener {
     private fun init() {
         binding.signUpTxt.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
+
+        firestoreDb = Firebase.firestore
+
+        usersRef = "Users"
     }
 
     override fun onClick(v: View) {
@@ -70,7 +72,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
     }
 
     private fun signIn() {
-        db.collection(usersRef).document(binding.consumerNo.text.toString()).get()
+        firestoreDb.collection(usersRef).document(binding.consumerNo.text.toString()).get()
             .addOnSuccessListener {
                 if (it.exists()) {
                     if (it.getString("consumerID") == binding.consumerNo.text.toString()) {
@@ -94,7 +96,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
     }
 
     private fun goToUserMainActivity() {
-        val intent : Intent = Intent(activity, UserMainActivity::class.java)
+        val intent: Intent = Intent(activity, UserMainActivity::class.java)
         startActivity(intent)
         activity?.finish()
     }
