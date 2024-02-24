@@ -1,19 +1,18 @@
 package com.example.fesco.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.example.fesco.R
-import com.example.fesco.activities.UserMainActivity
 import com.example.fesco.activities.XENMainActivity
 import com.example.fesco.databinding.FragmentXenLoginBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -74,9 +73,7 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
             if (it.exists()) {
                 Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
                 goToXENMainActivity()
-            }
-            else
-            {
+            } else {
                 Toast.makeText(activity, "Account doesn't exist", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener {
@@ -98,6 +95,12 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
     }
 
     private fun goToXENMainActivity() {
+
+        val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
+        val editor = pref?.edit()
+        editor?.putBoolean("xenFlag", true)
+        editor?.apply()
+
         val intent: Intent = Intent(activity, XENMainActivity()::class.java)
         startActivity(intent)
         activity?.finish()

@@ -1,5 +1,6 @@
 package com.example.fesco.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -96,6 +97,12 @@ class UserLoginFragment : Fragment(), OnClickListener {
     }
 
     private fun goToUserMainActivity() {
+
+        val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
+        val editor = pref?.edit()
+        editor?.putBoolean("userFlag", true)
+        editor?.apply()
+
         val intent: Intent = Intent(activity, UserMainActivity::class.java)
         startActivity(intent)
         activity?.finish()

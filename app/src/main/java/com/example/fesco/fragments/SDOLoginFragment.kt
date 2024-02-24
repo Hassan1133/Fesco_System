@@ -1,5 +1,6 @@
 package com.example.fesco.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
@@ -97,6 +98,13 @@ class SDOLoginFragment : Fragment(), OnClickListener {
     }
 
     private fun goToSDOMainActivity() {
+
+        val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
+        val editor = pref?.edit()
+        editor?.putBoolean("sdoFlag", true)
+        editor?.apply()
+
+
         val intent: Intent = Intent(activity, SDOMainActivity()::class.java)
         startActivity(intent)
         activity?.finish()
