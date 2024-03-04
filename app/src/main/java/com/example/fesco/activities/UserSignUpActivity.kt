@@ -1,25 +1,30 @@
 package com.example.fesco.activities
 
+import android.app.Dialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityUserSignUpBinding
+import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.User
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 class UserSignUpActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivityUserSignUpBinding
 
-    private val usersRef: String = "Users"
+    private lateinit var usersRef: String
 
     // Initialize firestore
-    private val db = Firebase.firestore
+    private lateinit var db : FirebaseFirestore
+
+    private lateinit var loadingDialog : Dialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUserSignUpBinding.inflate(layoutInflater)
@@ -30,6 +35,9 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     private fun init() {
         binding.signInTxt.setOnClickListener(this)
         binding.signUpBtn.setOnClickListener(this)
+        usersRef = "Users"
+        // Initialize firestore
+        db = Firebase.firestore
     }
 
     override fun onClick(v: View) {
@@ -42,6 +50,7 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
 
             R.id.signUpBtn -> {
                 if (isDataValid()) {
+                    loadingDialog = LoadingDialog.showLoadingDialog(this)!!
                     isConsumerExists()
                 }
             }
@@ -54,10 +63,12 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
                 if (it.exists() && !it.contains("consumerID")) {
                     signup()
                 } else {
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(this, "Invalid consumer ID", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
+                LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
             }
     }
@@ -72,14 +83,20 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
         )
         db.collection(usersRef).document(binding.consumerNo.text.toString()).set(user)
             .addOnSuccessListener {
-                Toast.makeText(this, "Signed Up Successfully", Toast.LENGTH_SHORT).show()
-                val intent : Intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                goToLoginActivity()
             }
             .addOnFailureListener{
+                LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun goToLoginActivity(){
+        LoadingDialog.hideLoadingDialog(loadingDialog)
+        Toast.makeText(this, "Signed Up Successfully", Toast.LENGTH_SHORT).show()
+        val intent : Intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun isDataValid(): Boolean {

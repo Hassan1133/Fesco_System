@@ -1,5 +1,6 @@
 package com.example.fesco.fragments
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +14,7 @@ import com.example.fesco.R
 import com.example.fesco.activities.UserMainActivity
 import com.example.fesco.activities.UserSignUpActivity
 import com.example.fesco.databinding.FragmentUserLoginBinding
+import com.example.fesco.main_utils.LoadingDialog
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -24,6 +26,8 @@ class UserLoginFragment : Fragment(), OnClickListener {
     private lateinit var usersRef: String
 
     private lateinit var firestoreDb: FirebaseFirestore
+
+    private lateinit var loadingDialog : Dialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,6 +57,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
 
             R.id.loginBtn -> {
                 if (isDataValid()) {
+                    loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
                     signIn()
                 }
             }
@@ -82,21 +87,27 @@ class UserLoginFragment : Fragment(), OnClickListener {
                                 .show()
                             goToUserMainActivity();
                         } else {
+                            LoadingDialog.hideLoadingDialog(loadingDialog)
                             Toast.makeText(activity, "Incorrect password", Toast.LENGTH_SHORT)
                                 .show()
                         }
                     } else {
+                        LoadingDialog.hideLoadingDialog(loadingDialog)
                         Toast.makeText(activity, "Invalid consumer ID", Toast.LENGTH_SHORT).show()
                     }
                 } else {
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(activity, "Invalid consumer ID", Toast.LENGTH_SHORT).show()
                 }
             }.addOnFailureListener {
+                LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun goToUserMainActivity() {
+
+        LoadingDialog.hideLoadingDialog(loadingDialog)
 
         val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
         val editor = pref?.edit()

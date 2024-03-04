@@ -53,4 +53,7 @@ dependencies {
 
     // circular ImageView
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    //    clk progress library
+    implementation("com.github.colakcode:clkProgress:v1.0")
 }
