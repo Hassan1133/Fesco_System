@@ -18,20 +18,21 @@ class SplashActivity : AppCompatActivity() {
             val userCheck = pref.getBoolean("userFlag", false)
             val xenCheck = pref.getBoolean("xenFlag", false)
             val sdoCheck = pref.getBoolean("sdoFlag", false)
-//            val lsCheck = pref.getBoolean("lsFlag", false)
-//            val lmCheck = pref.getBoolean("lmFlag", false)
+            val lsCheck = pref.getBoolean("lsFlag", false)
+            val lmCheck = pref.getBoolean("lmFlag", false)
             var intent: Intent
 
             if (userCheck) {
                 intent = Intent(this, UserMainActivity::class.java)
-            }
-            else if (xenCheck) {
+            } else if (xenCheck) {
                 intent = Intent(this, XENMainActivity::class.java)
-            }
-            else if (sdoCheck) {
+            } else if (sdoCheck) {
                 intent = Intent(this, SDOMainActivity::class.java)
-            }
-            else {
+            } else if (lsCheck) {
+                intent = Intent(this, LSMainActivity::class.java)
+            } else if (lmCheck) {
+                intent = Intent(this, LMMainActivity::class.java)
+            } else {
                 intent = Intent(this, LoginActivity::class.java)
             }
 

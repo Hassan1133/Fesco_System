@@ -15,6 +15,24 @@
         android:theme="@style/Theme.Fesco"
         tools:targetApi="31">
         <activity
+            android:name=".activities.LMProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LMMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.XENProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LSProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LSMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.UserProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.SDOMainActivity"
             android:exported="false" />
         <activity

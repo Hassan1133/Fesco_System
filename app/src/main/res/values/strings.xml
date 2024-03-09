@@ -26,6 +26,6 @@
     <string name="name_hint">enter your full name</string>
     <string name="address_hint">enter your address</string>
     <string name="phone_no_hint">enter your phone number</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="logout_message">Are you sure you want to Logout ?</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -56,4 +56,7 @@ dependencies {
 
     //    clk progress library
     implementation("com.github.colakcode:clkProgress:v1.0")
+
+    // gson
+    implementation ("com.google.code.gson:gson:2.10.1")
 }

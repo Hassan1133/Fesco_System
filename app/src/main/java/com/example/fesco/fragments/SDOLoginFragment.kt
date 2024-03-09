@@ -1,5 +1,6 @@
 package com.example.fesco.fragments
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -14,10 +15,16 @@ import com.example.fesco.R
 import com.example.fesco.activities.SDOMainActivity
 import com.example.fesco.activities.XENMainActivity
 import com.example.fesco.databinding.FragmentSdoLoginBinding
+import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.models.LSModel
+import com.example.fesco.models.SDOModel
+import com.example.fesco.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 
 class SDOLoginFragment : Fragment(), OnClickListener {
 
@@ -28,6 +35,10 @@ class SDOLoginFragment : Fragment(), OnClickListener {
     private lateinit var firestoreDb: FirebaseFirestore
 
     private lateinit var sdoRef: String
+
+    private lateinit var loadingDialog: Dialog
+
+    private lateinit var sdoModel: SDOModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,26 +61,30 @@ class SDOLoginFragment : Fragment(), OnClickListener {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
 
             if (it.isSuccessful) {
-                checkXENExists(it.result.user!!.uid)
+                checkSDOExists(it.result.user!!.uid)
             }
 
         }.addOnFailureListener {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
             Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun checkXENExists(userId: String) {
+    private fun checkSDOExists(userId: String) {
         firestoreDb.collection(sdoRef).document(userId).get().addOnSuccessListener {
 
             if (it.exists()) {
+                sdoModel = it.toObject(SDOModel::class.java)!!
+                goToSDOMainActivity(sdoModel)
                 Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
-                goToSDOMainActivity()
             }
             else
             {
+                LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(activity, "Account doesn't exist", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
             Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
         }
     }
@@ -90,6 +105,7 @@ class SDOLoginFragment : Fragment(), OnClickListener {
 
             R.id.loginBtn -> {
                 if (isDataValid()) {
+                    loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
                     signIn(binding.email.text.toString(), binding.password.text.toString())
                 }
             }
@@ -97,7 +113,9 @@ class SDOLoginFragment : Fragment(), OnClickListener {
         }
     }
 
-    private fun goToSDOMainActivity() {
+    private fun goToSDOMainActivity(model : SDOModel) {
+
+        setProfileDataToSharedPreferences(model)
 
         val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
         val editor = pref?.edit()
@@ -105,8 +123,28 @@ class SDOLoginFragment : Fragment(), OnClickListener {
         editor?.apply()
 
 
-        val intent: Intent = Intent(activity, SDOMainActivity()::class.java)
+        val intent = Intent(activity, SDOMainActivity()::class.java)
         startActivity(intent)
         activity?.finish()
+    }
+
+    private fun setProfileDataToSharedPreferences(model : SDOModel) {
+        val sdoData = context?.getSharedPreferences("sdoData", Context.MODE_PRIVATE)
+        val editor = sdoData?.edit()
+        if (model != null) {
+            editor?.putString("id", model.id)
+            editor?.putString("name", model.name)
+            editor?.putString("city", model.city)
+            editor?.putString("email", model.email)
+            editor?.putString("subDivision", model.subDivision)
+            // Convert the List<String> to a JSON string
+            val lsJson = Gson().toJson(model.LS)
+            editor?.putString("LS", lsJson)
+
+            val areaJson = Gson().toJson(model.area)
+            editor?.putString("area", areaJson)
+
+            editor?.apply()
+        }
     }
 }

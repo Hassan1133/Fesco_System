@@ -1,5 +1,6 @@
 package com.example.fesco.fragments
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -12,10 +13,14 @@ import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.activities.XENMainActivity
 import com.example.fesco.databinding.FragmentXenLoginBinding
+import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.models.XENModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 
 class XENLoginFragment : Fragment(), View.OnClickListener {
 
@@ -26,6 +31,10 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
     private lateinit var firestoreDb: FirebaseFirestore
 
     private lateinit var xenRef: String
+
+    private lateinit var xenModel: XENModel
+
+    private lateinit var loadingDialog: Dialog
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,6 +57,7 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
 
             R.id.loginBtn -> {
                 if (isDataValid()) {
+                    loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
                     signIn(binding.email.text.toString(), binding.password.text.toString())
                 }
             }
@@ -63,6 +73,7 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
             }
 
         }.addOnFailureListener {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
             Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
         }
     }
@@ -71,12 +82,15 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
         firestoreDb.collection(xenRef).document(userId).get().addOnSuccessListener {
 
             if (it.exists()) {
+                xenModel = it.toObject(XENModel::class.java)!!
+                goToXENMainActivity(xenModel)
                 Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
-                goToXENMainActivity()
             } else {
+                LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(activity, "Account doesn't exist", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
             Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
         }
     }
@@ -94,7 +108,9 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
         return valid
     }
 
-    private fun goToXENMainActivity() {
+    private fun goToXENMainActivity(model : XENModel) {
+
+        setProfileData(model)
 
         val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
         val editor = pref?.edit()
@@ -104,6 +120,22 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
         val intent: Intent = Intent(activity, XENMainActivity()::class.java)
         startActivity(intent)
         activity?.finish()
+    }
+
+    private fun setProfileData(model: XENModel) {
+        val xenData = context?.getSharedPreferences("xenData", Context.MODE_PRIVATE)
+        val editor = xenData?.edit()
+        if (model != null) {
+            editor?.putString("id", model.id)
+            editor?.putString("name", model.name)
+            editor?.putString("city", model.city)
+            editor?.putString("email", model.email)
+            editor?.putString("division", model.division)
+            // Convert the List<String> to a JSON string
+            val sdoJson = Gson().toJson(model.SDO)
+            editor?.putString("SDO", sdoJson)
+            editor?.apply()
+        }
     }
 }
 

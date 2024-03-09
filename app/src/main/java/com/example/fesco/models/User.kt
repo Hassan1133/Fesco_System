@@ -1,4 +1,6 @@
 package com.example.fesco.models
 
-data class User(val consumerID : String, val name: String,
-                 val phoneNo: String, val address: String, val key : String)
+data class User(
+    var consumerID: String = "", var name: String = "",
+    var phoneNo: String = "", var address: String = "", var key: String = ""
+)

@@ -74,13 +74,12 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun signup() {
-        val user = User(
-            binding.consumerNo.text.toString(),
-            binding.name.text.toString(),
-            binding.phoneNo.text.toString(),
-            binding.address.text.toString(),
-            binding.password.text.toString()
-        )
+        val user = User()
+        user.consumerID = binding.consumerNo.text.toString()
+        user.name = binding.name.text.toString()
+        user.phoneNo = binding.phoneNo.text.toString()
+        user.address = binding.address.text.toString()
+        user.key = binding.password.text.toString()
         db.collection(usersRef).document(binding.consumerNo.text.toString()).set(user)
             .addOnSuccessListener {
                 goToLoginActivity()
@@ -94,7 +93,7 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     private fun goToLoginActivity(){
         LoadingDialog.hideLoadingDialog(loadingDialog)
         Toast.makeText(this, "Signed Up Successfully", Toast.LENGTH_SHORT).show()
-        val intent : Intent = Intent(this, LoginActivity::class.java)
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }

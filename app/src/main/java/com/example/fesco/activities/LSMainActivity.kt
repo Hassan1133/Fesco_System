@@ -1,35 +1,33 @@
 package com.example.fesco.activities
 
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.view.View.OnClickListener
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
-import com.example.fesco.databinding.ActivityUserMainBinding
+import com.example.fesco.databinding.ActivityLsmainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class UserMainActivity : AppCompatActivity(), OnClickListener {
+class LSMainActivity : AppCompatActivity() , View.OnClickListener {
 
-    private lateinit var binding: ActivityUserMainBinding
+    private lateinit var binding: ActivityLsmainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityUserMainBinding.inflate(layoutInflater)
+        binding = ActivityLsmainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
-
     }
 
     private fun init() {
         binding.logoutBtn.setOnClickListener(this)
         binding.profile.setOnClickListener(this)
-        setUserName()
+        setLsName()
     }
 
-    private fun setUserName() {
-        val userData = getSharedPreferences("userData", MODE_PRIVATE)
-        binding.name.text = userData.getString("name", "")
+    private fun setLsName() {
+        val lsData = getSharedPreferences("lsData", MODE_PRIVATE)
+        binding.name.text = lsData.getString("name", "")
     }
 
     override fun onClick(v: View?) {
@@ -47,7 +45,7 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
                     .show()
             }
             R.id.profile -> {
-                val intent = Intent(this, UserProfileActivity::class.java)
+                val intent = Intent(this, LSProfileActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -55,14 +53,14 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
 
     private fun logOut() {
 
-        val userData = getSharedPreferences("userData", MODE_PRIVATE)
-        val profileDataEditor = userData.edit()
+        val lsData = getSharedPreferences("lsData", MODE_PRIVATE)
+        val profileDataEditor = lsData.edit()
         profileDataEditor.clear()
         profileDataEditor.apply()
 
         val pref = getSharedPreferences("login", MODE_PRIVATE)
         val editor = pref.edit()
-        editor.putBoolean("userFlag", false)
+        editor.putBoolean("lsFlag", false)
         editor.apply()
 
         val intent = Intent(this, LoginActivity::class.java)

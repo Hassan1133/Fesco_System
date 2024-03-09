@@ -1,35 +1,38 @@
 package com.example.fesco.activities
 
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.view.View.OnClickListener
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
-import com.example.fesco.databinding.ActivityUserMainBinding
+import com.example.fesco.databinding.ActivityLmmainBinding
+import com.example.fesco.databinding.ActivityLsmainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class UserMainActivity : AppCompatActivity(), OnClickListener {
+class LMMainActivity : AppCompatActivity(), View.OnClickListener {
 
-    private lateinit var binding: ActivityUserMainBinding
+    private lateinit var binding: ActivityLmmainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityUserMainBinding.inflate(layoutInflater)
+        binding = ActivityLmmainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
-
     }
 
     private fun init() {
         binding.logoutBtn.setOnClickListener(this)
         binding.profile.setOnClickListener(this)
-        setUserName()
+        setLMName()
     }
 
-    private fun setUserName() {
-        val userData = getSharedPreferences("userData", MODE_PRIVATE)
-        binding.name.text = userData.getString("name", "")
+    private fun setLMName() {
+        val lmData = getSharedPreferences("lmData", MODE_PRIVATE)
+        binding.name.text = lmData.getString("name", "")
+        Toast.makeText(this, lmData.getString("name", ""), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, lmData.getString("city", ""), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, lmData.getString("subDivision", ""), Toast.LENGTH_SHORT).show()
     }
 
     override fun onClick(v: View?) {
@@ -46,8 +49,9 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
                     }
                     .show()
             }
+
             R.id.profile -> {
-                val intent = Intent(this, UserProfileActivity::class.java)
+                val intent = Intent(this, LMProfileActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -55,14 +59,14 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
 
     private fun logOut() {
 
-        val userData = getSharedPreferences("userData", MODE_PRIVATE)
-        val profileDataEditor = userData.edit()
+        val lmData = getSharedPreferences("lmData", MODE_PRIVATE)
+        val profileDataEditor = lmData.edit()
         profileDataEditor.clear()
         profileDataEditor.apply()
 
         val pref = getSharedPreferences("login", MODE_PRIVATE)
         val editor = pref.edit()
-        editor.putBoolean("userFlag", false)
+        editor.putBoolean("lmFlag", false)
         editor.apply()
 
         val intent = Intent(this, LoginActivity::class.java)
