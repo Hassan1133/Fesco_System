@@ -117,7 +117,7 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
         editor?.putBoolean("xenFlag", true)
         editor?.apply()
 
-        val intent: Intent = Intent(activity, XENMainActivity()::class.java)
+        val intent = Intent(activity, XENMainActivity()::class.java)
         startActivity(intent)
         activity?.finish()
     }
@@ -132,8 +132,8 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
             editor?.putString("email", model.email)
             editor?.putString("division", model.division)
             // Convert the List<String> to a JSON string
-            val sdoJson = Gson().toJson(model.SDO)
-            editor?.putString("SDO", sdoJson)
+            val sdoJson = Gson().toJson(model.sdo)
+            editor?.putString("sdo", sdoJson)
             editor?.apply()
         }
     }

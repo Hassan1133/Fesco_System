@@ -6,6 +6,7 @@ data class SDOModel(
     var email: String = "",
     var city: String = "",
     var subDivision : String = "",
-    var LS : List<String> = emptyList<String>(),
+    var xen : String = "",
+    var ls : List<String> = emptyList<String>(),
     var area : List<String> = emptyList<String>()
 )

@@ -6,5 +6,7 @@ data class LSModel(
     var email: String = "",
     var city: String = "",
     var subDivision : String = "",
-    var work : List<String> = emptyList<String>()
+    var sdo : String = "",
+    var work : List<String> = emptyList<String>(),
+    var lm : List<String> = emptyList<String>()
 )

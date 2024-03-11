@@ -131,6 +131,7 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
             editor?.putString("name", model.name)
             editor?.putString("city", model.city)
             editor?.putString("email", model.email)
+            editor?.putString("ls", model.ls)
             editor?.putString("subDivision", model.subDivision)
             editor?.apply()
         }

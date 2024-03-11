@@ -13,16 +13,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.activities.SDOMainActivity
-import com.example.fesco.activities.XENMainActivity
 import com.example.fesco.databinding.FragmentSdoLoginBinding
 import com.example.fesco.main_utils.LoadingDialog
-import com.example.fesco.models.LSModel
 import com.example.fesco.models.SDOModel
-import com.example.fesco.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 
@@ -135,11 +131,12 @@ class SDOLoginFragment : Fragment(), OnClickListener {
             editor?.putString("id", model.id)
             editor?.putString("name", model.name)
             editor?.putString("city", model.city)
+            editor?.putString("xen", model.xen)
             editor?.putString("email", model.email)
             editor?.putString("subDivision", model.subDivision)
             // Convert the List<String> to a JSON string
-            val lsJson = Gson().toJson(model.LS)
-            editor?.putString("LS", lsJson)
+            val lsJson = Gson().toJson(model.ls)
+            editor?.putString("ls", lsJson)
 
             val areaJson = Gson().toJson(model.area)
             editor?.putString("area", areaJson)

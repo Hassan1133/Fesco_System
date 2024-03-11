@@ -46,8 +46,6 @@ class UserLoginFragment : Fragment(), OnClickListener {
         firestoreDb = Firebase.firestore
 
         usersRef = "Users"
-
-        user = User()
     }
 
     override fun onClick(v: View) {
@@ -86,11 +84,8 @@ class UserLoginFragment : Fragment(), OnClickListener {
                 if (it.exists()) {
                     if (it.getString("consumerID") == binding.consumerNo.text.toString()) {
                         if (it.getString("key") == binding.password.text.toString()) {
-                            user.consumerID = it.getString("consumerID")!!
-                            user.name = it.getString("name")!!
-                            user.phoneNo = it.getString("phoneNo")!!
-                            user.address = it.getString("address")!!
-                            goToUserMainActivity()
+                            user = it.toObject(User::class.java)!!
+                            goToUserMainActivity(user)
                             Toast.makeText(activity, "Logged in successfully", Toast.LENGTH_SHORT)
                                 .show()
                         } else {
@@ -112,9 +107,9 @@ class UserLoginFragment : Fragment(), OnClickListener {
             }
     }
 
-    private fun goToUserMainActivity() {
+    private fun goToUserMainActivity(model : User) {
 
-        getUserProfileData()
+        getUserProfileData(model)
 
         LoadingDialog.hideLoadingDialog(loadingDialog)
 
@@ -128,15 +123,16 @@ class UserLoginFragment : Fragment(), OnClickListener {
         activity?.finish()
     }
 
-    private fun getUserProfileData() {
+    private fun getUserProfileData(model : User) {
         val userData = context?.getSharedPreferences("userData", Context.MODE_PRIVATE)
         val editor = userData?.edit()
 
         if (user != null) {
-            editor?.putString("consumerID", user.consumerID)
-            editor?.putString("name", user.name)
-            editor?.putString("address", user.address)
-            editor?.putString("phoneNo", user.phoneNo)
+            editor?.putString("consumerID", model.consumerID)
+            editor?.putString("name", model.name)
+            editor?.putString("address", model.address)
+            editor?.putString("phoneNo", model.phoneNo)
+            editor?.putString("ls", model.ls)
             editor?.apply()
         }
     }

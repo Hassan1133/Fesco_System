@@ -10,7 +10,7 @@ import android.view.View.OnClickListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
-import com.example.fesco.databinding.ActivityXenprofileBinding
+import com.example.fesco.databinding.ActivitySdoprofileBinding
 import com.example.fesco.databinding.UserEditPasswordDialogBinding
 import com.example.fesco.main_utils.LoadingDialog
 import com.google.android.gms.tasks.Task
@@ -18,8 +18,9 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
-class XENProfileActivity : AppCompatActivity(), OnClickListener {
-    private lateinit var binding: ActivityXenprofileBinding
+class SDOProfileActivity : AppCompatActivity(), OnClickListener {
+
+    private lateinit var binding: ActivitySdoprofileBinding
 
     private lateinit var firebaseUser: FirebaseUser
 
@@ -28,9 +29,10 @@ class XENProfileActivity : AppCompatActivity(), OnClickListener {
     private lateinit var loadingDialog: Dialog
 
     private lateinit var userEditPasswordDialog: Dialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityXenprofileBinding.inflate(layoutInflater)
+        binding = ActivitySdoprofileBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
     }
@@ -42,11 +44,11 @@ class XENProfileActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun getProfileDataFromSharedPreferences() {
-        val xenData = getSharedPreferences("xenData", MODE_PRIVATE)
-        binding.name.text = xenData.getString("name", "")
-        binding.email.text = xenData.getString("email", "")
-        binding.city.text = xenData.getString("city", "")
-        binding.division.text = xenData.getString("division", "")
+        val sdoData = getSharedPreferences("sdoData", MODE_PRIVATE)
+        binding.name.text = sdoData.getString("name", "")
+        binding.email.text = sdoData.getString("email", "")
+        binding.city.text = sdoData.getString("city", "")
+        binding.subDivision.text = sdoData.getString("subDivision", "")
     }
 
     private fun createPasswordDialog() {

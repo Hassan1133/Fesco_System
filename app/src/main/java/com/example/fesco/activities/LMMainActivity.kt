@@ -4,11 +4,10 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLmmainBinding
-import com.example.fesco.databinding.ActivityLsmainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
 
 class LMMainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -30,9 +29,6 @@ class LMMainActivity : AppCompatActivity(), View.OnClickListener {
     private fun setLMName() {
         val lmData = getSharedPreferences("lmData", MODE_PRIVATE)
         binding.name.text = lmData.getString("name", "")
-        Toast.makeText(this, lmData.getString("name", ""), Toast.LENGTH_SHORT).show()
-        Toast.makeText(this, lmData.getString("city", ""), Toast.LENGTH_SHORT).show()
-        Toast.makeText(this, lmData.getString("subDivision", ""), Toast.LENGTH_SHORT).show()
     }
 
     override fun onClick(v: View?) {
@@ -58,6 +54,8 @@ class LMMainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun logOut() {
+
+        FirebaseAuth.getInstance().signOut()
 
         val lmData = getSharedPreferences("lmData", MODE_PRIVATE)
         val profileDataEditor = lmData.edit()

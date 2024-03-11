@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivitySdomainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
 
 
 class SDOMainActivity : AppCompatActivity(), OnClickListener {
@@ -46,13 +47,15 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
                     .show()
             }
             R.id.profile -> {
-                val intent = Intent(this, LSProfileActivity::class.java)
+                val intent = Intent(this, SDOProfileActivity::class.java)
                 startActivity(intent)
             }
         }
     }
 
     private fun logOut() {
+
+        FirebaseAuth.getInstance().signOut()
 
         val sdoData = getSharedPreferences("sdoData", MODE_PRIVATE)
         val profileDataEditor = sdoData.edit()

@@ -5,5 +5,6 @@ data class LMModel(
     var name: String = "",
     var email: String = "",
     var city: String = "",
+    var ls: String = "",
     var subDivision: String = ""
 )

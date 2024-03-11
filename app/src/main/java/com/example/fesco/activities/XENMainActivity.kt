@@ -8,6 +8,8 @@ import android.view.View.OnClickListener
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityXenmainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 class XENMainActivity : AppCompatActivity() , OnClickListener{
 
@@ -51,6 +53,8 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
     }
 
     private fun logOut() {
+
+        FirebaseAuth.getInstance().signOut()
 
         val xenData = getSharedPreferences("xenData", MODE_PRIVATE)
         val profileDataEditor = xenData.edit()

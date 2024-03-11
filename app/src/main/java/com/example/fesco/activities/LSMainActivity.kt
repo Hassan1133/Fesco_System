@@ -7,6 +7,7 @@ import android.view.View
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLsmainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
 
 class LSMainActivity : AppCompatActivity() , View.OnClickListener {
 
@@ -52,6 +53,8 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
     }
 
     private fun logOut() {
+
+        FirebaseAuth.getInstance().signOut()
 
         val lsData = getSharedPreferences("lsData", MODE_PRIVATE)
         val profileDataEditor = lsData.edit()
