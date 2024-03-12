@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Fesco"
         tools:targetApi="31">
         <activity
+            android:name=".activities.XENSDODetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.SDOProfileActivity"
             android:exported="false" />
         <activity

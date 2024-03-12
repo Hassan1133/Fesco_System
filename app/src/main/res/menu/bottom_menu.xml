@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/complaints"
+        android:title="Complaints"
+        android:icon="@drawable/complaint"
+        />
+
+    <item
+        android:id="@+id/sdo"
+        android:title="SDO"
+        android:icon="@drawable/baseline_supervised_user_circle_24"
+        />
+
+</menu>

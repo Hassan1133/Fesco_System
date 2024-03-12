@@ -1,15 +1,18 @@
 package com.example.fesco.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityXenmainBinding
+import com.example.fesco.fragments.XENComplaintFragment
+import com.example.fesco.fragments.XENSDOFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 
 class XENMainActivity : AppCompatActivity() , OnClickListener{
 
@@ -25,6 +28,8 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
         binding.logoutBtn.setOnClickListener(this)
         binding.profile.setOnClickListener(this)
         setXENName()
+        bottomNavigationSelection()
+        loadFragment(XENComplaintFragment())
     }
 
     private fun setXENName() {
@@ -45,11 +50,40 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
                     }
                     .show()
             }
+
             R.id.profile -> {
                 val intent = Intent(this, XENProfileActivity::class.java)
                 startActivity(intent)
             }
         }
+    }
+
+    private fun bottomNavigationSelection() {
+        binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.complaints -> {
+                    loadFragment(XENComplaintFragment())
+                    return@OnItemSelectedListener true
+                }
+
+                R.id.sdo -> {
+                    loadFragment(XENSDOFragment())
+                    return@OnItemSelectedListener true
+                }
+            }
+            false
+        })
+    }
+
+    private fun loadFragment(fragment: Fragment?) {
+        if (fragment != null) {
+            supportFragmentManager.beginTransaction().replace(R.id.frame, fragment).commit()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setXENName()
     }
 
     private fun logOut() {

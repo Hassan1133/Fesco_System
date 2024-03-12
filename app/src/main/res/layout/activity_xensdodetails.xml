@@ -4,29 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:fillViewport="true"
-    tools:context=".activities.SDOProfileActivity">
+    android:background="@color/white"
+    tools:context=".activities.XENSDODetailsActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profileIcon"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"
-            android:src="@drawable/avatar" />
-
-
         <RelativeLayout
             android:id="@+id/nameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/profileIcon"
             android:layout_marginStart="20dp"
             android:layout_marginTop="50dp"
             android:layout_marginEnd="20dp">
@@ -53,7 +43,7 @@
                     android:padding="2dp"
                     android:text="@string/name"
                     android:textColor="@color/black"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -63,7 +53,7 @@
                     android:layout_below="@id/nameHeading"
                     android:padding="2dp"
                     android:textColor="@color/hint_color"
-                    android:textSize="14sp" />
+                    android:textSize="15sp" />
 
 
                 <com.google.android.material.divider.MaterialDivider
@@ -85,7 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/nameLayout"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:layout_marginEnd="20dp">
 
             <ImageView
@@ -110,7 +100,7 @@
                     android:padding="2dp"
                     android:text="@string/email"
                     android:textColor="@color/black"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -120,7 +110,7 @@
                     android:layout_below="@+id/emailHeading"
                     android:padding="2dp"
                     android:textColor="@color/hint_color"
-                    android:textSize="14sp" />
+                    android:textSize="15sp" />
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
@@ -140,7 +130,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/emailLayout"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:layout_marginEnd="20dp">
 
             <ImageView
@@ -165,7 +155,7 @@
                     android:padding="2dp"
                     android:text="@string/city"
                     android:textColor="@color/black"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -175,7 +165,7 @@
                     android:layout_below="@+id/cityHeading"
                     android:padding="2dp"
                     android:textColor="@color/hint_color"
-                    android:textSize="14sp" />
+                    android:textSize="15sp" />
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
@@ -195,7 +185,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/cityLayout"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:layout_marginEnd="20dp">
 
             <ImageView
@@ -220,7 +210,7 @@
                     android:padding="2dp"
                     android:text="@string/sub_division"
                     android:textColor="@color/black"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -230,7 +220,7 @@
                     android:layout_below="@id/divisionHeading"
                     android:padding="2dp"
                     android:textColor="@color/hint_color"
-                    android:textSize="14sp" />
+                    android:textSize="15sp" />
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
@@ -244,80 +234,6 @@
 
         </RelativeLayout>
 
-
-        <RelativeLayout
-            android:id="@+id/passwordLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/divisionLayout"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp">
-
-            <ImageView
-                android:id="@+id/passwordIcon"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/password"
-                app:tint="@color/black" />
-
-
-            <RelativeLayout
-                android:id="@+id/passwordData"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:layout_toStartOf="@+id/editIcon"
-                android:layout_toEndOf="@+id/passwordIcon">
-
-                <TextView
-                    android:id="@+id/passwordHeading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:padding="2dp"
-                    android:text="@string/password"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/passwordHeading"
-                    android:padding="2dp"
-                    android:text="@string/change_password"
-                    android:textColor="@color/hint_color"
-                    android:textSize="14sp" />
-
-            </RelativeLayout>
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/editIcon"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:backgroundTint="@color/white"
-                android:src="@drawable/edit"
-                app:elevation="0dp"
-                app:fabCustomSize="25dp"
-                app:maxImageSize="14dp"
-                app:srcCompat="@drawable/logout"
-                app:tint="@color/app_color" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_below="@+id/passwordData"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="4dp"
-                android:layout_toEndOf="@id/passwordIcon" />
-
-        </RelativeLayout>
-
     </RelativeLayout>
+
 </ScrollView>
