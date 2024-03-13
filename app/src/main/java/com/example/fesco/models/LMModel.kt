@@ -1,5 +1,7 @@
 package com.example.fesco.models
 
+import java.io.Serializable
+
 data class LMModel(
     var id: String = "",
     var name: String = "",
@@ -7,4 +9,4 @@ data class LMModel(
     var city: String = "",
     var ls: String = "",
     var subDivision: String = ""
-)
+) : Serializable

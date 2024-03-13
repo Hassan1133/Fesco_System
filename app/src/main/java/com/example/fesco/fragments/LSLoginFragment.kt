@@ -132,9 +132,6 @@ class LSLoginFragment : Fragment(), View.OnClickListener {
             editor?.putString("email", model.email)
             editor?.putString("subDivision", model.subDivision)
             editor?.putString("sdo", model.sdo)
-            // Convert the List<String> to a JSON string
-            val workJson = Gson().toJson(model.work)
-            editor?.putString("work", workJson)
 
             val lmJson = Gson().toJson(model.lm)
             editor?.putString("lm", lmJson)
