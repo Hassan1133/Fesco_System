@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,49 +7,47 @@
     android:background="@color/white"
     tools:context=".activities.SDOMainActivity">
 
+
     <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="@color/dirty_white"
+        android:gravity="center_vertical"
+        android:paddingStart="5dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="5dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:padding="5dp"
+            android:src="@drawable/avatar" />
 
         <RelativeLayout
-            android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/todayDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="02-sep-2023"
-                android:textColor="@color/black"
-                android:textSize="13dp"
-                android:visibility="gone" />
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profile"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerVertical="true"
-                android:padding="5dp"
-                android:src="@drawable/avatar" />
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/logoutBtn"
+            android:layout_toEndOf="@id/profile">
 
             <TextView
                 android:id="@id/tvHello"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="8dp"
-                android:layout_toRightOf="@+id/profile"
                 android:text="@string/welcome_back"
                 android:textColor="@color/black"
                 android:textSize="10dp" />
 
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="5dp"
+                android:layout_toRightOf="@+id/tvHello"
+                android:src="@drawable/helloicon" />
 
             <TextView
                 android:id="@+id/name"
@@ -58,34 +56,47 @@
                 android:layout_below="@+id/tvHello"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="10dp"
-                android:layout_toStartOf="@+id/logoutBtn"
-                android:layout_toEndOf="@id/profile"
                 android:text="Mohsin Abid"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="9dp"
-                android:layout_toRightOf="@+id/tvHello"
-                android:src="@drawable/helloicon" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/logoutBtn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:backgroundTint="@color/white"
-                app:elevation="0dp"
-                app:fabCustomSize="30dp"
-                app:maxImageSize="17dp"
-                app:srcCompat="@drawable/logout"
-                app:tint="@color/app_color" />
         </RelativeLayout>
 
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/logoutBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:backgroundTint="@color/dirty_white"
+            app:elevation="0dp"
+            app:fabCustomSize="30dp"
+            app:maxImageSize="17dp"
+            app:srcCompat="@drawable/logout"
+            app:tint="@color/app_color" />
     </RelativeLayout>
-</ScrollView>
+
+    <FrameLayout
+        android:id="@+id/sdoFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomNavigation"
+        android:layout_below="@+id/header" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bottom_nav_shape"
+        android:elevation="0dp"
+        android:padding="4dp"
+        app:itemIconSize="25dp"
+        app:itemIconTint="@color/bottom_nav_colors"
+        app:itemTextColor="@color/bottom_nav_colors"
+        app:labelVisibilityMode="selected"
+        app:menu="@menu/sdo_bottom_menu" />
+
+</RelativeLayout>

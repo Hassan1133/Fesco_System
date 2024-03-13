@@ -5,9 +5,13 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivitySdomainBinding
+import com.example.fesco.fragments.SDOComplaintFragment
+import com.example.fesco.fragments.SDOLSFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -25,6 +29,8 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
         binding.logoutBtn.setOnClickListener(this)
         binding.profile.setOnClickListener(this)
         setSDOName()
+        bottomNavigationSelection()
+        loadFragment(SDOComplaintFragment())
     }
 
     private fun setSDOName() {
@@ -70,5 +76,28 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun bottomNavigationSelection() {
+        binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.complaints -> {
+                    loadFragment(SDOComplaintFragment())
+                    return@OnItemSelectedListener true
+                }
+
+                R.id.ls -> {
+                    loadFragment(SDOLSFragment())
+                    return@OnItemSelectedListener true
+                }
+            }
+            false
+        })
+    }
+
+    private fun loadFragment(fragment: Fragment?) {
+        if (fragment != null) {
+            supportFragmentManager.beginTransaction().replace(R.id.sdoFrame, fragment).commit()
+        }
     }
 }

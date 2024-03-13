@@ -1,5 +1,7 @@
 package com.example.fesco.models
 
+import java.io.Serializable
+
 data class LSModel(
     var id: String = "",
     var name: String = "",
@@ -9,4 +11,4 @@ data class LSModel(
     var sdo : String = "",
     var work : List<String> = emptyList<String>(),
     var lm : List<String> = emptyList<String>()
-)
+) : Serializable

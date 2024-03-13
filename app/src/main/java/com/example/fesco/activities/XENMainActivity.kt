@@ -77,13 +77,8 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
 
     private fun loadFragment(fragment: Fragment?) {
         if (fragment != null) {
-            supportFragmentManager.beginTransaction().replace(R.id.frame, fragment).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.xenFrame, fragment).commit()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setXENName()
     }
 
     private fun logOut() {

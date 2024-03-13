@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.XENSDOFragment">
+    tools:context=".fragments.SDOLSFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/sdoRecycler"
+        android:id="@+id/lsRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         />
+
 
 </RelativeLayout>

@@ -12,10 +12,11 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="5dp"
-        android:gravity="center_vertical">
+        android:background="@color/dirty_white"
+        android:gravity="center_vertical"
+        android:paddingStart="5dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="5dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile"
@@ -25,39 +26,42 @@
             android:padding="5dp"
             android:src="@drawable/avatar" />
 
-        <TextView
-            android:id="@id/tvHello"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="8dp"
-            android:layout_toRightOf="@+id/profile"
-            android:text="@string/welcome_back"
-            android:textColor="@color/black"
-            android:textSize="10dp" />
-
-
-        <TextView
-            android:id="@+id/name"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvHello"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="10dp"
+            android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/logoutBtn"
-            android:layout_toEndOf="@id/profile"
-            android:text="Mohsin Abid"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_toEndOf="@id/profile">
 
-        <ImageView
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="9dp"
-            android:layout_toRightOf="@+id/tvHello"
-            android:src="@drawable/helloicon" />
+            <TextView
+                android:id="@id/tvHello"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="@string/welcome_back"
+                android:textColor="@color/black"
+                android:textSize="10dp" />
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="5dp"
+                android:layout_toRightOf="@+id/tvHello"
+                android:src="@drawable/helloicon" />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvHello"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="10dp"
+                android:text="Mohsin Abid"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/logoutBtn"
@@ -65,7 +69,7 @@
             android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="@color/dirty_white"
             app:elevation="0dp"
             app:fabCustomSize="30dp"
             app:maxImageSize="17dp"
@@ -74,7 +78,7 @@
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/frame"
+        android:id="@+id/xenFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/header"
@@ -94,6 +98,6 @@
         app:itemIconTint="@color/bottom_nav_colors"
         app:itemTextColor="@color/bottom_nav_colors"
         app:labelVisibilityMode="selected"
-        app:menu="@menu/bottom_menu" />
+        app:menu="@menu/xen_bottom_menu" />
 
 </RelativeLayout>
