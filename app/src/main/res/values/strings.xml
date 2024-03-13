@@ -23,7 +23,9 @@
     <string name="dont_have_account">Don\'t have an Account ?</string>
     <string name="phone_no">Phone No</string>
     <string name="address">Address</string>
+    <string name="complaint_type_hint">Select complaint type</string>
     <string name="update">Update</string>
+    <string name="submit_complaint">Submit Complaint</string>
     <string name="current_password_hint">Current Password</string>
     <string name="new_password_hint">New Password</string>
     <string name="change_password">change your password</string>

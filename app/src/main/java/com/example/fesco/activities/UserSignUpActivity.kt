@@ -100,7 +100,7 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun isDataValid(): Boolean {
-        var valid: Boolean = true
+        var valid = true
         if (binding.consumerNo.text.isNullOrEmpty() || binding.consumerNo.text!!.length < 10) {
             binding.consumerNo.error = "Please enter valid consumer number"
             valid = false

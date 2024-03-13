@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/edit_dialog_shape">
+
+        <ImageView
+            android:id="@+id/closeBtn"
+            android:layout_width="20sp"
+            android:layout_height="20sp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/close" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/complaintTypeLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="20dp"
+            android:textColorHint="@color/hint_color"
+            android:layout_below="@+id/closeBtn"
+            app:boxBackgroundColor="@color/white"
+            app:boxStrokeColor="@color/hint_color"
+            app:endIconTint="@color/hint_color"
+            app:hintEnabled="false"
+            app:hintTextColor="@color/hint_color">
+
+            <AutoCompleteTextView
+                android:id="@+id/complaintType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/complaint_type_hint"
+                android:inputType="none"
+                android:textColor="@color/hint_color"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/submitBtn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/complaintTypeLayout"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="@color/app_color"
+            android:text="@string/submit_complaint"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="6dp" />
+
+    </RelativeLayout>
+
+</ScrollView>
