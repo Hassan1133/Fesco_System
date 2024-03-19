@@ -6,5 +6,5 @@ data class XENModel(
     var email: String = "",
     var division: String = "",
     var city: String = "",
-    var sdo : List<String> = emptyList<String>()
+    var sdo : List<String> = emptyList()
 )

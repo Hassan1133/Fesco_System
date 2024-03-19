@@ -131,7 +131,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/cityLayout"
+        android:id="@+id/phoneLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/emailLayout"
@@ -186,10 +186,10 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/divisionLayout"
+        android:id="@+id/addressLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/cityLayout"
+        android:layout_below="@+id/phoneLayout"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp">
@@ -245,7 +245,7 @@
         android:id="@+id/passwordLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/divisionLayout"
+        android:layout_below="@id/addressLayout"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp">

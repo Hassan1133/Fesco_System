@@ -133,6 +133,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
             editor?.putString("address", model.address)
             editor?.putString("phoneNo", model.phoneNo)
             editor?.putString("ls", model.ls)
+            editor?.putString("sdo", model.sdo)
             editor?.apply()
         }
     }

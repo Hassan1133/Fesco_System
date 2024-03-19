@@ -9,6 +9,6 @@ data class SDOModel(
     var city: String = "",
     var subDivision : String = "",
     var xen : String = "",
-    var ls : List<String> = emptyList<String>(),
-    var area : List<String> = emptyList<String>()
+    var ls : List<String> = emptyList(),
+    var area : List<String> = emptyList()
 ) : Serializable

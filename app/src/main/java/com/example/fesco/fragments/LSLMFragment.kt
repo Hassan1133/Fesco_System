@@ -44,18 +44,18 @@ class LSLMFragment : Fragment() {
         firestoreDb = Firebase.firestore
         lmList = arrayListOf()
         binding.lmRecycler.layoutManager = LinearLayoutManager(activity)
-        getSDOArrayFromSharedPreferences()
+        getLMArrayFromSharedPreferences()
     }
 
-    private fun getSDOArrayFromSharedPreferences() {
+    private fun getLMArrayFromSharedPreferences() {
         val lmArray = context?.getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
             ?.getString("lm", null)
             ?.let { Gson().fromJson(it, Array<String>::class.java) }
 
-        lmArray?.let { getSdoDataFromDb(it) }
+        lmArray?.let { getLMDataFromDb(it) }
     }
 
-    private fun getSdoDataFromDb(lmArray: Array<String>) {
+    private fun getLMDataFromDb(lmArray: Array<String>) {
         viewLifecycleOwner.lifecycleScope.launch {
             lmList = lmArray.mapNotNull { lmID ->
                 try {

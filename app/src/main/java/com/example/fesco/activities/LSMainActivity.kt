@@ -1,15 +1,15 @@
 package com.example.fesco.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLsmainBinding
 import com.example.fesco.fragments.LSComplaintFragment
 import com.example.fesco.fragments.LSLMFragment
-import com.example.fesco.fragments.SDOComplaintFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
@@ -29,8 +29,8 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
         binding.logoutBtn.setOnClickListener(this)
         binding.profile.setOnClickListener(this)
         setLsName()
+        loadFragment(LSComplaintFragment())
         bottomNavigationSelection()
-        loadFragment(SDOComplaintFragment())
     }
 
     private fun setLsName() {
@@ -81,23 +81,32 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
     private fun bottomNavigationSelection() {
         binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.complaints -> {
+                R.id.lsComplaints ->
                     loadFragment(LSComplaintFragment())
-                    return@OnItemSelectedListener true
-                }
 
-                R.id.lm -> {
+                R.id.lm ->
                     loadFragment(LSLMFragment())
-                    return@OnItemSelectedListener true
-                }
             }
-            false
+            true
         })
     }
 
     private fun loadFragment(fragment: Fragment?) {
         if (fragment != null) {
             supportFragmentManager.beginTransaction().replace(R.id.lsFrame, fragment).commit()
+            when (fragment) {
+                is LSComplaintFragment -> {
+                    if (!binding.bottomNavigation.menu[0].isChecked) {
+                        binding.bottomNavigation.menu[0].isChecked = true
+                    }
+                }
+
+                is LSLMFragment -> {
+                    if (!binding.bottomNavigation.menu[1].isChecked) {
+                        binding.bottomNavigation.menu[1].isChecked = true
+                    }
+                }
+            }
         }
     }
 }

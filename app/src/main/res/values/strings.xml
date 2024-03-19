@@ -23,8 +23,13 @@
     <string name="dont_have_account">Don\'t have an Account ?</string>
     <string name="phone_no">Phone No</string>
     <string name="address">Address</string>
+    <string name="status">Complaint Status</string>
+    <string name="date_time">Complaint DateTime</string>
+    <string name="complaint_type">Complaint Type</string>
+    <string name="assign_lm">Assign To LM</string>
     <string name="complaint_type_hint">Select complaint type</string>
     <string name="update">Update</string>
+    <string name="assign_to_lm">Assign complaint to LM</string>
     <string name="submit_complaint">Submit Complaint</string>
     <string name="current_password_hint">Current Password</string>
     <string name="new_password_hint">New Password</string>
