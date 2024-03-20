@@ -10,10 +10,9 @@ import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityUserMainBinding
-import com.example.fesco.databinding.ComplaintDialogBinding
-import com.example.fesco.fragments.LSComplaintFragment
 import com.example.fesco.fragments.LSLMFragment
-import com.example.fesco.fragments.UserPendingComplaintsFragment
+import com.example.fesco.fragments.LSNotResolvedComplaintFragment
+import com.example.fesco.fragments.UserNotResolvedComplaintsFragment
 import com.example.fesco.fragments.UserResolvedComplaintsFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
@@ -28,10 +27,6 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityUserMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-    }
-
-    override fun onResume() {
-        super.onResume()
         init()
     }
 
@@ -40,7 +35,7 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
         binding.profile.setOnClickListener(this)
         setUserName()
         bottomNavigationSelection()
-        loadFragment(UserPendingComplaintsFragment())
+        loadFragment(UserNotResolvedComplaintsFragment())
     }
 
     private fun setUserName() {
@@ -84,7 +79,7 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
         binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.userPendingComplaints ->
-                    loadFragment(UserPendingComplaintsFragment())
+                    loadFragment(UserNotResolvedComplaintsFragment())
 
                 R.id.userResolvedComplaints ->
                     loadFragment(UserResolvedComplaintsFragment())
@@ -97,7 +92,7 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
         if (fragment != null) {
             supportFragmentManager.beginTransaction().replace(R.id.userFrame, fragment).commit()
             when (fragment) {
-                is LSComplaintFragment -> {
+                is LSNotResolvedComplaintFragment -> {
                     if (!binding.bottomNavigation.menu[0].isChecked) {
                         binding.bottomNavigation.menu[0].isChecked = true
                     }

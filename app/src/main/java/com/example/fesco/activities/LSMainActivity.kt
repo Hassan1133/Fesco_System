@@ -8,8 +8,9 @@ import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLsmainBinding
-import com.example.fesco.fragments.LSComplaintFragment
+import com.example.fesco.fragments.LSNotResolvedComplaintFragment
 import com.example.fesco.fragments.LSLMFragment
+import com.example.fesco.fragments.LSResolvedComplaintFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
@@ -29,7 +30,7 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
         binding.logoutBtn.setOnClickListener(this)
         binding.profile.setOnClickListener(this)
         setLsName()
-        loadFragment(LSComplaintFragment())
+        loadFragment(LSNotResolvedComplaintFragment())
         bottomNavigationSelection()
     }
 
@@ -81,8 +82,11 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
     private fun bottomNavigationSelection() {
         binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.lsComplaints ->
-                    loadFragment(LSComplaintFragment())
+                R.id.lsUnResolvedComplaints ->
+                    loadFragment(LSNotResolvedComplaintFragment())
+
+                R.id.lsResolvedComplaints ->
+                    loadFragment(LSResolvedComplaintFragment())
 
                 R.id.lm ->
                     loadFragment(LSLMFragment())
@@ -95,7 +99,7 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
         if (fragment != null) {
             supportFragmentManager.beginTransaction().replace(R.id.lsFrame, fragment).commit()
             when (fragment) {
-                is LSComplaintFragment -> {
+                is LSNotResolvedComplaintFragment -> {
                     if (!binding.bottomNavigation.menu[0].isChecked) {
                         binding.bottomNavigation.menu[0].isChecked = true
                     }

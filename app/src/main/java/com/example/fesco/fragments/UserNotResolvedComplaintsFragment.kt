@@ -12,13 +12,14 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.R
 import com.example.fesco.adapters.UserComplaintAdp
 import com.example.fesco.databinding.ComplaintDialogBinding
-import com.example.fesco.databinding.FragmentUserPendingComplaintsBinding
+import com.example.fesco.databinding.FragmentUserNotReslovedComplaintsBinding
 import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.Firebase
@@ -29,9 +30,9 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class UserPendingComplaintsFragment : Fragment(), OnClickListener {
+class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
-    private lateinit var binding: FragmentUserPendingComplaintsBinding
+    private lateinit var binding: FragmentUserNotReslovedComplaintsBinding
 
     private lateinit var userComplaintDialogBinding: ComplaintDialogBinding
 
@@ -43,11 +44,12 @@ class UserPendingComplaintsFragment : Fragment(), OnClickListener {
 
     private lateinit var userData: SharedPreferences
 
+    private lateinit var updatedComplaintList: MutableList<UserComplaintModel>
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentUserPendingComplaintsBinding.inflate(layoutInflater, container, false)
+        binding = FragmentUserNotReslovedComplaintsBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -59,10 +61,36 @@ class UserPendingComplaintsFragment : Fragment(), OnClickListener {
     private fun init() {
         binding.addComplaintBtn.setOnClickListener(this)
         firestoreDb = Firebase.firestore
+        updatedComplaintList = mutableListOf<UserComplaintModel>()
         userData =
             requireActivity().getSharedPreferences("userData", AppCompatActivity.MODE_PRIVATE)
         binding.userComplaintsRecycler.layoutManager = LinearLayoutManager(requireActivity())
         getUserComplaintsID()
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                search(newText!!)
+                return true
+            }
+        })
+    }
+
+    private fun search(newText: String) {
+        val searchList = mutableListOf<UserComplaintModel>()
+        for (i in updatedComplaintList) {
+            if (i.complaintType.lowercase()
+                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+                    .contains(newText.lowercase()) || i.status.lowercase()
+                    .contains(newText.lowercase())
+            ) {
+                searchList.add(i)
+            }
+        }
+        setDataToRecycler(searchList)
     }
 
     private fun getUserComplaintsID() {
@@ -82,17 +110,22 @@ class UserPendingComplaintsFragment : Fragment(), OnClickListener {
     }
 
     private fun getComplaintDataFromDb(complaintList: List<String>) {
+
+        if (complaintList.isEmpty()) {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            return
+        }
+
         firestoreDb.collection("UserComplaints").whereIn("id", complaintList)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
                     LoadingDialog.hideLoadingDialog(loadingDialog)
-                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
-                val updatedComplaintList = mutableListOf<UserComplaintModel>()
+                updatedComplaintList.clear()
 
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
@@ -105,6 +138,7 @@ class UserPendingComplaintsFragment : Fragment(), OnClickListener {
 
 
                 // Update the UI with the updated complaint list
+                updatedComplaintList.sortByDescending { it.dateTime }
                 setDataToRecycler(updatedComplaintList)
                 LoadingDialog.hideLoadingDialog(loadingDialog)
             }
@@ -122,7 +156,6 @@ class UserPendingComplaintsFragment : Fragment(), OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-
             R.id.addComplaintBtn -> createComplaintDialog()
         }
     }
@@ -168,6 +201,8 @@ class UserPendingComplaintsFragment : Fragment(), OnClickListener {
         model.dateTime = getCurrentDateTime()!!
         model.status = "Pending"
         model.lm = ""
+        model.feedback = "none"
+        model.sentToSDO = false
 
         submitComplaint(model)
     }

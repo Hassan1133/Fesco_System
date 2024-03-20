@@ -127,7 +127,7 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
 
     private fun updateComplaintStatus(lmId: String?) {
         firestoreDb.collection("UserComplaints").document(userComplaintModel.id)
-            .update("status", "In Process").addOnSuccessListener {
+            .update("status", "In Process", "lm", lmId).addOnSuccessListener {
                 retrieveLMComplaintList(lmId!!)
             }.addOnFailureListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/userPendingComplaints"
+        android:id="@+id/lmUnresolvedComplaints"
         android:icon="@drawable/pending"
         android:title="Unresolved Complaints" />
 
     <item
-        android:id="@+id/userResolvedComplaints"
+        android:id="@+id/lmResolvedComplaints"
         android:icon="@drawable/solved"
         android:title="Resolved Complaints" />
 </menu>

@@ -6,12 +6,23 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fillViewport="true"
-    tools:context=".activities.LSUserComplaintDetailsActivity">
+    tools:context=".activities.UserComplaintDetailsActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/feedBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="25dp"
+            android:text="Feedback"
+            android:textColor="@color/app_color"
+            />
 
         <RelativeLayout
             android:id="@+id/consumerIDLayout"
@@ -19,6 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
+            android:layout_below="@+id/feedBack"
             android:layout_marginEnd="20dp">
 
             <ImageView
@@ -393,69 +405,6 @@
                     android:layout_marginStart="3dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="4dp" />
-
-            </RelativeLayout>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/assignmentLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/complaintTypeLayout"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp">
-
-            <ImageView
-                android:id="@+id/assignmentIcon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/assign"
-                app:tint="@color/black" />
-
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_toEndOf="@+id/assignmentIcon">
-z
-                <TextView
-                    android:id="@+id/assignmentHeading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:text="@string/assign_lm"
-                    android:textColor="@color/black"
-                    android:textSize="15dp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/assignToLMLayout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/assignmentHeading"
-                    android:layout_marginTop="5dp"
-                    android:textColorHint="@color/hint_color"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxStrokeColor="@color/hint_color"
-                    app:endIconTint="@color/hint_color"
-                    app:hintEnabled="false"
-                    app:hintTextColor="@color/hint_color">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/assignToLM"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/assign_to_lm"
-                        android:inputType="none"
-                        android:textColor="@color/hint_color"
-                        android:textSize="14sp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
 
             </RelativeLayout>
 

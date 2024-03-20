@@ -1,8 +1,16 @@
 <resources>
+
+    <string-array name="status_array">
+        <item>In Process</item>
+        <item>Resolved</item>
+    </string-array>
+
     <string name="app_name">Fesco</string>
     <string name="email_hint">example@gmail.com</string>
+    <string name="search">Search...</string>
     <string name="login">Login</string>
     <string name="sign_in"> Sign In</string>
+    <string name="complaint_feedback">Complaint feedback</string>
     <string name="sign_up"> Sign Up</string>
     <string name="signup">Sign-up</string>
     <string name="user_login">User Login</string>
@@ -29,6 +37,7 @@
     <string name="assign_lm">Assign To LM</string>
     <string name="complaint_type_hint">Select complaint type</string>
     <string name="update">Update</string>
+    <string name="status_update">Update the status</string>
     <string name="assign_to_lm">Assign complaint to LM</string>
     <string name="submit_complaint">Submit Complaint</string>
     <string name="current_password_hint">Current Password</string>

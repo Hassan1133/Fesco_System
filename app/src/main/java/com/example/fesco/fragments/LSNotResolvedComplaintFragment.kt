@@ -11,47 +11,37 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fesco.adapters.UserComplaintAdp
-import com.example.fesco.databinding.FragmentUserResolvedComplaintsBinding
+import com.example.fesco.adapters.LSUserComplaintAdp
+import com.example.fesco.databinding.FragmentLSNotResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.UserComplaintModel
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
-import java.util.Locale
 
-class UserResolvedComplaintsFragment : Fragment() {
+class LSNotResolvedComplaintFragment : Fragment() {
 
-    private lateinit var binding: FragmentUserResolvedComplaintsBinding
-
+    private lateinit var binding: FragmentLSNotResolvedComplaintBinding
     private lateinit var loadingDialog: Dialog
-
     private lateinit var firestoreDb: FirebaseFirestore
-
-    private lateinit var userData: SharedPreferences
-
+    private lateinit var lsData: SharedPreferences
+    private lateinit var adapter: LSUserComplaintAdp
     private lateinit var updatedComplaintList: MutableList<UserComplaintModel>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentUserResolvedComplaintsBinding.inflate(layoutInflater, container, false)
+        binding = FragmentLSNotResolvedComplaintBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        init()
-    }
-
     private fun init() {
-        firestoreDb = Firebase.firestore
+        firestoreDb = FirebaseFirestore.getInstance()
         updatedComplaintList = mutableListOf<UserComplaintModel>()
-        userData =
-            requireActivity().getSharedPreferences("userData", AppCompatActivity.MODE_PRIVATE)
-        binding.userSolvedComplaintsRecycler.layoutManager = LinearLayoutManager(requireActivity())
-        getUserComplaintsID()
+        binding.lsUserNotResolvedComplaintsRecycler.layoutManager =
+            LinearLayoutManager(requireActivity())
+        lsData = requireActivity().getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
+        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        getLsUserComplaintsID()
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -68,7 +58,7 @@ class UserResolvedComplaintsFragment : Fragment() {
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase(Locale.getDefault())
+            if (i.complaintType.lowercase()
                     .contains(newText.lowercase()) || i.dateTime.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
                     .contains(newText.lowercase())
@@ -79,23 +69,33 @@ class UserResolvedComplaintsFragment : Fragment() {
         setDataToRecycler(searchList)
     }
 
-    private fun getUserComplaintsID() {
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
-        firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
+
+    private fun getLsUserComplaintsID() {
+
+        firestoreDb.collection("LS").document(lsData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
                     LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
                 }
+
                 snapShot?.let { document ->
-                    getComplaintDataFromDb(
-                        document.get("complaints") as? List<String> ?: emptyList()
-                    )
+                    var complaints = document.get("complaints") as? List<String>
+                    complaints?.let {
+                        getLsUserComplaintDataFromDb(it)
+                    } ?: run {
+                        LoadingDialog.hideLoadingDialog(loadingDialog)
+                    }
                 }
             }
     }
 
-    private fun getComplaintDataFromDb(complaintList: List<String>) {
+    private fun getLsUserComplaintDataFromDb(complaintList: List<String>) {
 
         if (complaintList.isEmpty()) {
             LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -116,15 +116,17 @@ class UserResolvedComplaintsFragment : Fragment() {
 
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
-                    if (complaint?.status == "Resolved") {
-                        complaint?.let {
-                            updatedComplaintList.add(it)
+                    complaint?.let {
+                        if (complaint?.status != "Resolved") {
+                            complaint?.let {
+                                updatedComplaintList.add(it)
+                            }
                         }
                     }
                 }
 
-                updatedComplaintList.sortByDescending { it.dateTime }
                 // Update the UI with the updated complaint list
+                updatedComplaintList.sortByDescending { it.dateTime }
                 setDataToRecycler(updatedComplaintList)
                 LoadingDialog.hideLoadingDialog(loadingDialog)
             }
@@ -135,7 +137,7 @@ class UserResolvedComplaintsFragment : Fragment() {
             // Fragment is not attached to an activity
             return
         }
-        binding.userSolvedComplaintsRecycler.adapter = UserComplaintAdp(requireActivity(), list)
-        LoadingDialog.hideLoadingDialog(loadingDialog)
+        adapter = LSUserComplaintAdp(requireActivity(), list)
+        binding.lsUserNotResolvedComplaintsRecycler.adapter = adapter
     }
 }

@@ -3,50 +3,57 @@ package com.example.fesco.fragments
 import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fesco.adapters.LSUserComplaintAdp
-import com.example.fesco.databinding.FragmentLSComplaintBinding
+import com.example.fesco.R
+import com.example.fesco.adapters.LMUserComplaintAdp
+import com.example.fesco.databinding.FragmentLMResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
 
-class LSComplaintFragment : Fragment() {
+class LMResolvedComplaintFragment : Fragment() {
 
-    private lateinit var binding: FragmentLSComplaintBinding
+    private lateinit var binding: FragmentLMResolvedComplaintBinding
+
     private lateinit var loadingDialog: Dialog
+
     private lateinit var firestoreDb: FirebaseFirestore
-    private lateinit var lsData: SharedPreferences
-    private lateinit var adapter: LSUserComplaintAdp
+
+    private lateinit var lmData: SharedPreferences
+
+    private lateinit var adapter: LMUserComplaintAdp
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentLSComplaintBinding.inflate(inflater, container, false)
+        binding = FragmentLMResolvedComplaintBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     private fun init() {
         firestoreDb = FirebaseFirestore.getInstance()
-        binding.lsUserComplaintsRecycler.layoutManager = LinearLayoutManager(requireActivity())
-        lsData = requireActivity().getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
+        binding.lmResolvedComplaintsRecycler.layoutManager =
+            LinearLayoutManager(requireActivity())
+        lmData = requireActivity().getSharedPreferences("lmData", AppCompatActivity.MODE_PRIVATE)
         loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
-        getLsUserComplaintsID()
+        getLMUserComplaintsID()
     }
 
     override fun onResume() {
         super.onResume()
         init()
     }
-    private fun getLsUserComplaintsID() {
 
-        firestoreDb.collection("LS").document(lsData.getString("id", "")!!)
+    private fun getLMUserComplaintsID() {
+
+        firestoreDb.collection("LM").document(lmData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
                     LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -57,7 +64,7 @@ class LSComplaintFragment : Fragment() {
                 snapShot?.let { document ->
                     var complaints = document.get("complaints") as? List<String>
                     complaints?.let {
-                        getLsUserComplaintDataFromDb(it)
+                        getLMUserComplaintDataFromDb(it)
                     } ?: run {
                         LoadingDialog.hideLoadingDialog(loadingDialog)
                     }
@@ -65,7 +72,13 @@ class LSComplaintFragment : Fragment() {
             }
     }
 
-    private fun getLsUserComplaintDataFromDb(complaintList: List<String>) {
+    private fun getLMUserComplaintDataFromDb(complaintList: List<String>) {
+
+        if (complaintList.isEmpty()) {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            return
+        }
+
         firestoreDb.collection("UserComplaints").whereIn("id", complaintList)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
@@ -81,7 +94,11 @@ class LSComplaintFragment : Fragment() {
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
                     complaint?.let {
-                        updatedComplaintList.add(it)
+                        if (complaint?.status == "Resolved") {
+                            complaint?.let {
+                                updatedComplaintList.add(it)
+                            }
+                        }
                     }
                 }
 
@@ -96,8 +113,7 @@ class LSComplaintFragment : Fragment() {
             // Fragment is not attached to an activity
             return
         }
-        adapter = LSUserComplaintAdp(requireActivity(), list)
-        binding.lsUserComplaintsRecycler.adapter = adapter
-        adapter.notifyDataSetChanged()
+        adapter = LMUserComplaintAdp(requireActivity(), list)
+        binding.lmResolvedComplaintsRecycler.adapter = adapter
     }
 }

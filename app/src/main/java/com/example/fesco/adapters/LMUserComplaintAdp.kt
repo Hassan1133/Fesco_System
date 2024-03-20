@@ -8,14 +8,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fesco.R
-import com.example.fesco.activities.SDOLSDetailsActivity
-import com.example.fesco.activities.UserComplaintDetailsActivity
-import com.example.fesco.databinding.UserComplaintRecyclerDesignBinding
-import com.example.fesco.models.LSModel
+import com.example.fesco.activities.LMUserComplaintDetailsActivity
 import com.example.fesco.models.UserComplaintModel
 
-class UserComplaintAdp (private val context: Context, private val complaintList: List<UserComplaintModel>) :
-    RecyclerView.Adapter<UserComplaintAdp.ViewHolder>() {
+class LMUserComplaintAdp (private val context: Context, private val complaintList: List<UserComplaintModel>) :
+    RecyclerView.Adapter<LMUserComplaintAdp.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -33,7 +30,7 @@ class UserComplaintAdp (private val context: Context, private val complaintList:
         holder.complaintStatus.text = userComplaintModel.status
 
         holder.itemView.setOnClickListener {
-            val intent = Intent(context, UserComplaintDetailsActivity::class.java)
+            val intent = Intent(context, LMUserComplaintDetailsActivity::class.java)
             intent.putExtra("userComplaintModel", userComplaintModel)
             context.startActivity(intent)
         }

@@ -15,6 +15,12 @@
         android:theme="@style/Theme.Fesco"
         tools:targetApi="31">
         <activity
+            android:name=".activities.UserComplaintDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LMUserComplaintDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.LSUserComplaintDetailsActivity"
             android:exported="false" />
         <activity
@@ -77,6 +83,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".services.SendComplaintsToSDOService" />
+
+        <receiver android:name=".receivers.AlarmReceiver" />
     </application>
 
 </manifest>

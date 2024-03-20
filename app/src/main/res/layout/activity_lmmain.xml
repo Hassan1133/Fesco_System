@@ -76,4 +76,26 @@
                 app:tint="@color/app_color" />
         </RelativeLayout>
 
+    <FrameLayout
+        android:id="@+id/lmFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomNavigation"
+        android:layout_below="@+id/header" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bottom_nav_shape"
+        android:elevation="0dp"
+        android:padding="4dp"
+        app:itemIconSize="25dp"
+        app:itemIconTint="@color/bottom_nav_colors"
+        app:itemTextColor="@color/bottom_nav_colors"
+        app:labelVisibilityMode="selected"
+        app:menu="@menu/lm_bottom_menu" />
+
     </RelativeLayout>

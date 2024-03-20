@@ -10,5 +10,6 @@ data class SDOModel(
     var subDivision : String = "",
     var xen : String = "",
     var ls : List<String> = emptyList(),
+    var complaints: List<String> = emptyList(),
     var area : List<String> = emptyList()
 ) : Serializable

@@ -4,13 +4,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.UserPendingComplaintsFragment">
+    tools:context=".fragments.UserNotResolvedComplaintsFragment">
+
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/fragment_search_view_bg"
+        android:elevation="3dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:theme="@style/search_view_style"
+        app:iconifiedByDefault="false"
+        app:queryBackground="@color/transparent"
+        app:queryHint="@string/search" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/userComplaintsRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" />
+        android:layout_below="@id/searchView"
+        />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addComplaintBtn"
