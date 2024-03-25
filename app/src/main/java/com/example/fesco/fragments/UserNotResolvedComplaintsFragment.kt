@@ -27,8 +27,20 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
+
 
 class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
@@ -50,12 +62,8 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentUserNotReslovedComplaintsBinding.inflate(layoutInflater, container, false)
-        return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
         init()
+        return binding.root
     }
 
     private fun init() {
@@ -203,6 +211,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
         model.lm = ""
         model.feedback = "none"
         model.sentToSDO = false
+        model.sentToXEN = false
 
         submitComplaint(model)
     }
@@ -233,9 +242,10 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
             .get()
             .addOnSuccessListener { snapShot ->
                 val currentComplaints = snapShot.get("complaints") as? List<String> ?: emptyList()
-                val updatedComplaints = currentComplaints.filter { it.isNotEmpty() }.toMutableList()
-                updatedComplaints.add(id)
-                sendComplaintIDToUser(id, updatedComplaints)
+                val updatedUserComplaints =
+                    currentComplaints.filter { it.isNotEmpty() }.toMutableList()
+                updatedUserComplaints.add(id)
+                sendComplaintIDToUser(id, updatedUserComplaints)
             }.addOnFailureListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
@@ -258,9 +268,10 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
             .get()
             .addOnSuccessListener { snapShot ->
                 val currentComplaints = snapShot.get("complaints") as? List<String> ?: emptyList()
-                val updatedComplaints = currentComplaints.filter { it.isNotEmpty() }.toMutableList()
-                updatedComplaints.add(id)
-                sendComplaintIDToLS(updatedComplaints)
+                val updatedLSComplaints =
+                    currentComplaints.filter { it.isNotEmpty() }.toMutableList()
+                updatedLSComplaints.add(id)
+                sendComplaintIDToLS(updatedLSComplaints)
             }.addOnFailureListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
@@ -271,19 +282,73 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
         firestoreDb.collection("LS").document(userData.getString("ls", "")!!)
             .update("complaints", list)
             .addOnSuccessListener {
-                Toast.makeText(
-                    requireActivity(),
-                    "Complaint Submitted Successfully",
-                    Toast.LENGTH_SHORT
-                ).show()
+                getLSFCMToken(userData.getString("ls", "")!!)
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 userComplaintDialog.dismiss()
             }.addOnFailureListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireActivity(),
+                    it.message + " --sendComplaintIDToLS Failure",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
+    private fun getLSFCMToken(lsId: String) {
+        firestoreDb.collection("LS").document(lsId).get().addOnSuccessListener {
+            sendNotificationToLS(it.get("lsFCMToken").toString())
+        }.addOnFailureListener {
+            Toast.makeText(
+                requireActivity(), it.message + " --getLSFCMToken Failure", Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun sendNotificationToLS(token: String) {
+        try {
+            val jsonObject = JSONObject().apply {
+                val dataObj = JSONObject().apply {
+                    put("title", userData.getString("name", ""))
+                    put("body", "needs help right now.")
+                    put("userType", "user")
+                }
+                put("data", dataObj)
+                put("to", token)
+            }
+            callApi(jsonObject)
+        } catch (e: Exception) {
+            // Handle exception
+        }
+    }
+
+    private fun callApi(jsonObject: JSONObject) {
+        val json: MediaType = "application/json; charset=utf-8".toMediaType()
+        val client = OkHttpClient()
+        val url = "https://fcm.googleapis.com/fcm/send"
+        val body: RequestBody = jsonObject.toString().toRequestBody(json)
+        val request: Request = Request.Builder().url(url).post(body).header(
+            "Authorization",
+            "Bearer AAAAEsCZH-k:APA91bEfvGZwHlw0XZMK9C8o70UmyK4QkVVDMDbLls4Wi2FlUP4Fdm5fe0Y7xyzSKbadMZD-eRlMI3j281K_mxa16qw0J8qeqFhPqEjHHq6ITKOY9sWIck1KpZdwfNeFZWJwOSSL6CZW"
+        ).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure
+                requireActivity()?.runOnUiThread {
+                    Toast.makeText(activity, e.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                requireActivity()?.runOnUiThread {
+                    Toast.makeText(
+                        requireActivity(), "Complaint Submitted Successfully", Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        })
+    }
 
     private fun getCurrentDateTime(): String? {
         val dateFormat = SimpleDateFormat("d MMM yyyy hh:mm a")

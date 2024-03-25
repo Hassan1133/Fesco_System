@@ -113,7 +113,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
 
         LoadingDialog.hideLoadingDialog(loadingDialog)
 
-        val pref = activity?.getSharedPreferences("login", Context.MODE_PRIVATE)
+        val pref = activity?.getSharedPreferences("fescoLogin", Context.MODE_PRIVATE)
         val editor = pref?.edit()
         editor?.putBoolean("userFlag", true)
         editor?.apply()
@@ -134,6 +134,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
             editor?.putString("phoneNo", model.phoneNo)
             editor?.putString("ls", model.ls)
             editor?.putString("sdo", model.sdo)
+            editor?.putString("xen", model.xen)
             editor?.apply()
         }
     }

@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.XENSDOAdp
 import com.example.fesco.databinding.FragmentXENSDOBinding
@@ -18,9 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class XENSDOFragment : Fragment() {
 
@@ -28,7 +24,7 @@ class XENSDOFragment : Fragment() {
 
     private lateinit var firestoreDb: FirebaseFirestore
 
-    private lateinit var sdoList: List<SDOModel>
+    private lateinit var sdoList: MutableList<SDOModel>
 
     private lateinit var loadingDialog: Dialog
 
@@ -44,36 +40,58 @@ class XENSDOFragment : Fragment() {
     private fun init() {
         loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
         firestoreDb = Firebase.firestore
-        sdoList = arrayListOf()
+        sdoList = mutableListOf<SDOModel>()
         binding.sdoRecycler.layoutManager = LinearLayoutManager(activity)
         getSDOArrayFromSharedPreferences()
     }
 
     private fun getSDOArrayFromSharedPreferences() {
-        val sdoArray = context?.getSharedPreferences("xenData", AppCompatActivity.MODE_PRIVATE)
+        val list = context?.getSharedPreferences("xenData", AppCompatActivity.MODE_PRIVATE)
             ?.getString("sdo", null)
-            ?.let { Gson().fromJson(it, Array<String>::class.java) }
+            ?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
 
-        sdoArray?.let { getSdoDataFromDb(it) }
+        list?.let { getSdoDataFromDb(it) }
     }
 
-    private fun getSdoDataFromDb(sdoArray: Array<String>) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            sdoList = sdoArray.mapNotNull { sdoID ->
-                try {
-                    firestoreDb.collection("SDO").document(sdoID).get().await()
-                        .toObject(SDOModel::class.java)
-                } catch (e: Exception) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
-                    null
-                }
-            }
-            setDataToRecycler(sdoList)
+    private fun getSdoDataFromDb(list: List<String>) {
+
+        if (list.isEmpty()) {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            return
         }
+
+        firestoreDb.collection("SDO").whereIn("id", list)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    // Handle exception
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
+                        .show()
+                    return@addSnapshotListener
+                }
+
+                sdoList.clear()
+
+                snapshots?.documents?.forEach { documentSnapshot ->
+                    val sdo = documentSnapshot.toObject(SDOModel::class.java)
+                    sdo?.let {
+                        sdo?.let {
+                            sdoList.add(it)
+                        }
+                    }
+                }
+
+                setDataToRecycler(sdoList)
+                LoadingDialog.hideLoadingDialog(loadingDialog)
+            }
     }
 
     private fun setDataToRecycler(list : List<SDOModel>)
     {
+        if (!isAdded) {
+            // Fragment is not attached to an activity
+            return
+        }
         binding.sdoRecycler.adapter = XENSDOAdp(requireActivity(),list)
         LoadingDialog.hideLoadingDialog(loadingDialog)
     }

@@ -12,6 +12,7 @@ data class UserComplaintModel(
     var lm: String = "",
     var feedback: String = "",
     var sentToSDO: Boolean = false,
+    var sentToXEN: Boolean = false,
     var complaintType: String = "",
     var id: String = ""
 ) : Serializable

@@ -37,13 +37,10 @@ class UserResolvedComplaintsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentUserResolvedComplaintsBinding.inflate(layoutInflater, container, false)
+        init()
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        init()
-    }
 
     private fun init() {
         firestoreDb = Firebase.firestore

@@ -8,7 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityXenmainBinding
-import com.example.fesco.fragments.XENComplaintFragment
+import com.example.fesco.fragments.XENNotResolvedComplaintFragment
+import com.example.fesco.fragments.XENResolvedComplaintFragment
 import com.example.fesco.fragments.XENSDOFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
@@ -29,7 +30,7 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
         binding.profile.setOnClickListener(this)
         setXENName()
         bottomNavigationSelection()
-        loadFragment(XENComplaintFragment())
+        loadFragment(XENNotResolvedComplaintFragment())
     }
 
     private fun setXENName() {
@@ -61,8 +62,13 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
     private fun bottomNavigationSelection() {
         binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.complaints -> {
-                    loadFragment(XENComplaintFragment())
+                R.id.xenUserNotResolvedComplaints -> {
+                    loadFragment(XENNotResolvedComplaintFragment())
+                    return@OnItemSelectedListener true
+                }
+
+                R.id.xenUserResolvedComplaints -> {
+                    loadFragment(XENResolvedComplaintFragment())
                     return@OnItemSelectedListener true
                 }
 
@@ -90,7 +96,7 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
         profileDataEditor.clear()
         profileDataEditor.apply()
 
-        val pref = getSharedPreferences("login", MODE_PRIVATE)
+        val pref = getSharedPreferences("fescoLogin", MODE_PRIVATE)
         val editor = pref.edit()
         editor.putBoolean("xenFlag", false)
         editor.apply()

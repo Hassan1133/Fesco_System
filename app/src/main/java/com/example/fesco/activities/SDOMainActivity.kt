@@ -8,8 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivitySdomainBinding
-import com.example.fesco.fragments.SDOComplaintFragment
+import com.example.fesco.fragments.SDONotResolvedComplaintFragment
 import com.example.fesco.fragments.SDOLSFragment
+import com.example.fesco.fragments.SDOResolvedComplaintFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
@@ -30,7 +31,7 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
         binding.profile.setOnClickListener(this)
         setSDOName()
         bottomNavigationSelection()
-        loadFragment(SDOComplaintFragment())
+        loadFragment(SDONotResolvedComplaintFragment())
     }
 
     private fun setSDOName() {
@@ -68,7 +69,7 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
         profileDataEditor.clear()
         profileDataEditor.apply()
 
-        val pref = getSharedPreferences("login", MODE_PRIVATE)
+        val pref = getSharedPreferences("fescoLogin", MODE_PRIVATE)
         val editor = pref.edit()
         editor.putBoolean("sdoFlag", false)
         editor.apply()
@@ -81,8 +82,13 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
     private fun bottomNavigationSelection() {
         binding.bottomNavigation.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.complaints -> {
-                    loadFragment(SDOComplaintFragment())
+                R.id.sdoUserNotResolvedComplaints -> {
+                    loadFragment(SDONotResolvedComplaintFragment())
+                    return@OnItemSelectedListener true
+                }
+
+                R.id.sdoUserResolvedComplaints -> {
+                    loadFragment(SDOResolvedComplaintFragment())
                     return@OnItemSelectedListener true
                 }
 

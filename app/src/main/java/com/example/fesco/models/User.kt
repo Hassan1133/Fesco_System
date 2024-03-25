@@ -8,5 +8,6 @@ data class User(
     var ls: String = "",
     var sdo: String = "",
     var key: String = "",
+    var xen: String = "",
     var complaints: List<String> = emptyList()
 )

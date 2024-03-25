@@ -65,7 +65,7 @@ class UserMainActivity : AppCompatActivity(), OnClickListener {
         profileDataEditor.clear()
         profileDataEditor.apply()
 
-        val pref = getSharedPreferences("login", MODE_PRIVATE)
+        val pref = getSharedPreferences("fescoLogin", MODE_PRIVATE)
         val editor = pref.edit()
         editor.putBoolean("userFlag", false)
         editor.apply()

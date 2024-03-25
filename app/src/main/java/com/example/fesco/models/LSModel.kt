@@ -9,6 +9,7 @@ data class LSModel(
     var city: String = "",
     var subDivision : String = "",
     var sdo : String = "",
+    var lsFCMToken : String = "",
     var lm : List<String> = emptyList(),
     var complaints: List<String> = emptyList()
 ) : Serializable

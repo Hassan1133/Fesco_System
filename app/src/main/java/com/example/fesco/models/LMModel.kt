@@ -8,5 +8,6 @@ data class LMModel(
     var email: String = "",
     var city: String = "",
     var ls: String = "",
+    var lmFCMToken: String = "",
     var subDivision: String = ""
 ) : Serializable

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +29,7 @@ class SDOLSFragment : Fragment() {
 
     private lateinit var firestoreDb: FirebaseFirestore
 
-    private lateinit var lsList: List<LSModel>
+    private lateinit var lsList: MutableList<LSModel>
 
     private lateinit var loadingDialog: Dialog
 
@@ -45,36 +46,57 @@ class SDOLSFragment : Fragment() {
     private fun init() {
         loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
         firestoreDb = Firebase.firestore
-        lsList = arrayListOf()
+        lsList = mutableListOf<LSModel>()
         binding.lsRecycler.layoutManager = LinearLayoutManager(activity)
         getSDOArrayFromSharedPreferences()
     }
 
     private fun getSDOArrayFromSharedPreferences() {
-        val lsArray = context?.getSharedPreferences("sdoData", AppCompatActivity.MODE_PRIVATE)
+        val list = context?.getSharedPreferences("sdoData", AppCompatActivity.MODE_PRIVATE)
             ?.getString("ls", null)
-            ?.let { Gson().fromJson(it, Array<String>::class.java) }
+            ?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
 
-        lsArray?.let { getSdoDataFromDb(it) }
+        list?.let { getSdoDataFromDb(it) }
     }
 
-    private fun getSdoDataFromDb(lsArray: Array<String>) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            lsList = lsArray.mapNotNull { lsID ->
-                try {
-                    firestoreDb.collection("LS").document(lsID).get().await()
-                        .toObject(LSModel::class.java)
-                } catch (e: Exception) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
-                    null
-                }
-            }
-            setDataToRecycler(lsList)
+    private fun getSdoDataFromDb(list: List<String>) {
+        if (list.isEmpty()) {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            return
         }
+
+        firestoreDb.collection("LS").whereIn("id", list)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    // Handle exception
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
+                        .show()
+                    return@addSnapshotListener
+                }
+
+                lsList.clear()
+
+                snapshots?.documents?.forEach { documentSnapshot ->
+                    val ls = documentSnapshot.toObject(LSModel::class.java)
+                    ls?.let {
+                        ls?.let {
+                            lsList.add(it)
+                        }
+                    }
+                }
+
+                setDataToRecycler(lsList)
+                LoadingDialog.hideLoadingDialog(loadingDialog)
+            }
     }
 
     private fun setDataToRecycler(list : List<LSModel>)
     {
+        if (!isAdded) {
+            // Fragment is not attached to an activity
+            return
+        }
         binding.lsRecycler.adapter = SDOLSAdp(requireActivity(),list)
         LoadingDialog.hideLoadingDialog(loadingDialog)
     }

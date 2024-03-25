@@ -32,6 +32,9 @@
     <string name="phone_no">Phone No</string>
     <string name="address">Address</string>
     <string name="status">Complaint Status</string>
+    <string name="ls">LS</string>
+    <string name="sdo">SDO</string>
+    <string name="feedback">User Feedback</string>
     <string name="date_time">Complaint DateTime</string>
     <string name="complaint_type">Complaint Type</string>
     <string name="assign_lm">Assign To LM</string>

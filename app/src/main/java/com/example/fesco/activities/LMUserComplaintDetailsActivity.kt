@@ -43,6 +43,7 @@ class LMUserComplaintDetailsActivity : AppCompatActivity() {
         binding.complaintType.text = userComplaintModel.complaintType
         binding.address.text = userComplaintModel.address
         binding.phone.text = userComplaintModel.phoneNo
+        binding.feedback.text = userComplaintModel.feedback
 
         setupAutoCompleteTextView()
     }

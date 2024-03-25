@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.LSLMAdp
 import com.example.fesco.databinding.FragmentLSLMBinding
@@ -17,8 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class LSLMFragment : Fragment() {
 
@@ -26,7 +24,7 @@ class LSLMFragment : Fragment() {
 
     private lateinit var firestoreDb: FirebaseFirestore
 
-    private lateinit var lmList: List<LMModel>
+    private lateinit var lmList: MutableList<LMModel>
 
     private lateinit var loadingDialog: Dialog
 
@@ -42,37 +40,57 @@ class LSLMFragment : Fragment() {
     private fun init() {
         loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
         firestoreDb = Firebase.firestore
-        lmList = arrayListOf()
+        lmList = mutableListOf<LMModel>()
         binding.lmRecycler.layoutManager = LinearLayoutManager(activity)
         getLMArrayFromSharedPreferences()
     }
 
     private fun getLMArrayFromSharedPreferences() {
-        val lmArray = context?.getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
+        val list = context?.getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
             ?.getString("lm", null)
-            ?.let { Gson().fromJson(it, Array<String>::class.java) }
+            ?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
 
-        lmArray?.let { getLMDataFromDb(it) }
+        list?.let { getLMDataFromDb(it) }
     }
 
-    private fun getLMDataFromDb(lmArray: Array<String>) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            lmList = lmArray.mapNotNull { lmID ->
-                try {
-                    firestoreDb.collection("LM").document(lmID).get().await()
-                        .toObject(LMModel::class.java)
-                } catch (e: Exception) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
-                    null
-                }
-            }
-            setDataToRecycler(lmList)
+    private fun getLMDataFromDb(list: List<String>) {
+        if (list.isEmpty()) {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            return
         }
+
+        firestoreDb.collection("LM").whereIn("id", list)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    // Handle exception
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
+                        .show()
+                    return@addSnapshotListener
+                }
+
+                lmList.clear()
+
+                snapshots?.documents?.forEach { documentSnapshot ->
+                    val lm = documentSnapshot.toObject(LMModel::class.java)
+                    lm?.let {
+                        lm?.let {
+                            lmList.add(it)
+                        }
+                    }
+                }
+
+                setDataToRecycler(lmList)
+                LoadingDialog.hideLoadingDialog(loadingDialog)
+            }
     }
 
-    private fun setDataToRecycler(list : List<LMModel>)
-    {
-        binding.lmRecycler.adapter = LSLMAdp(requireActivity(),list)
+    private fun setDataToRecycler(list : List<LMModel>) {
+        if (!isAdded) {
+            // Fragment is not attached to an activity
+            return
+        }
+        binding.lmRecycler.adapter = LSLMAdp(requireActivity(), list)
         LoadingDialog.hideLoadingDialog(loadingDialog)
     }
 }

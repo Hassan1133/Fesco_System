@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLsmainBinding
@@ -38,7 +37,6 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
         val lsData = getSharedPreferences("lsData", MODE_PRIVATE)
         binding.name.text = lsData.getString("name", "")
     }
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.logoutBtn -> {
@@ -69,7 +67,7 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
         profileDataEditor.clear()
         profileDataEditor.apply()
 
-        val pref = getSharedPreferences("login", MODE_PRIVATE)
+        val pref = getSharedPreferences("fescoLogin", MODE_PRIVATE)
         val editor = pref.edit()
         editor.putBoolean("lsFlag", false)
         editor.apply()
@@ -98,19 +96,6 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
     private fun loadFragment(fragment: Fragment?) {
         if (fragment != null) {
             supportFragmentManager.beginTransaction().replace(R.id.lsFrame, fragment).commit()
-            when (fragment) {
-                is LSNotResolvedComplaintFragment -> {
-                    if (!binding.bottomNavigation.menu[0].isChecked) {
-                        binding.bottomNavigation.menu[0].isChecked = true
-                    }
-                }
-
-                is LSLMFragment -> {
-                    if (!binding.bottomNavigation.menu[1].isChecked) {
-                        binding.bottomNavigation.menu[1].isChecked = true
-                    }
-                }
-            }
         }
     }
 }

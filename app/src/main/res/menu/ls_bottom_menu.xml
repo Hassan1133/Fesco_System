@@ -4,15 +4,19 @@
     <item
         android:id="@+id/lsUnResolvedComplaints"
         android:icon="@drawable/pending"
-        android:title="Unresolved Complains" />
+        android:title="Unresolved Complains"
+        android:enabled="true"
+        />
 
     <item
         android:id="@+id/lsResolvedComplaints"
         android:icon="@drawable/solved"
+        android:enabled="true"
         android:title="Resolved Complains" />
 
     <item
         android:id="@+id/lm"
         android:icon="@drawable/baseline_supervised_user_circle_24"
+        android:enabled="true"
         android:title="LM" />
 </menu>

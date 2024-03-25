@@ -60,8 +60,8 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     private fun isConsumerExists() {
         db.collection(usersRef).document(binding.consumerNo.text.toString()).get()
             .addOnSuccessListener {
-                if (it.exists() && !it.contains("consumerID") && it.contains("ls") && it.contains("sdo")) {
-                    signup(it.getString("ls")!!, it.getString("sdo")!!)
+                if (it.exists() && !it.contains("consumerID") && it.contains("ls") && it.contains("sdo") && it.contains("xen")) {
+                    signup(it.getString("ls")!!, it.getString("sdo")!!, it.getString("xen")!!)
                 } else {
                     LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(this, "Invalid consumer ID", Toast.LENGTH_SHORT).show()
@@ -73,7 +73,7 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
             }
     }
 
-    private fun signup(ls: String, sdo: String) {
+    private fun signup(ls: String, sdo: String, xen: String) {
         val user = User()
         user.consumerID = binding.consumerNo.text.toString()
         user.name = binding.name.text.toString()
@@ -81,6 +81,7 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
         user.address = binding.address.text.toString()
         user.ls = ls
         user.sdo = sdo
+        user.xen = xen
         user.key = binding.password.text.toString()
         db.collection(usersRef).document(binding.consumerNo.text.toString()).set(user)
             .addOnSuccessListener {

@@ -59,4 +59,10 @@ dependencies {
 
     // gson
     implementation ("com.google.code.gson:gson:2.10.1")
+
+    // FCM
+    implementation ("com.google.firebase:firebase-messaging:23.4.1")
+
+    //okhttp
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }

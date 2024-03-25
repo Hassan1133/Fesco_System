@@ -11,39 +11,39 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fesco.adapters.LSUserComplaintAdp
-import com.example.fesco.databinding.FragmentLSNotResolvedComplaintBinding
+import com.example.fesco.adapters.SDOUserComplaintAdp
+import com.example.fesco.databinding.FragmentSDONotResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-class LSNotResolvedComplaintFragment : Fragment() {
+class SDONotResolvedComplaintFragment : Fragment() {
 
-    private lateinit var binding: FragmentLSNotResolvedComplaintBinding
+    private lateinit var binding: FragmentSDONotResolvedComplaintBinding
     private lateinit var loadingDialog: Dialog
     private lateinit var firestoreDb: FirebaseFirestore
-    private lateinit var lsData: SharedPreferences
-    private lateinit var adapter: LSUserComplaintAdp
+    private lateinit var sdoData: SharedPreferences
+    private lateinit var adapter: SDOUserComplaintAdp
     private lateinit var updatedComplaintList: MutableList<UserComplaintModel>
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentLSNotResolvedComplaintBinding.inflate(inflater, container, false)
+        binding = FragmentSDONotResolvedComplaintBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     private fun init() {
         firestoreDb = FirebaseFirestore.getInstance()
         updatedComplaintList = mutableListOf<UserComplaintModel>()
-        binding.lsUserNotResolvedComplaintsRecycler.layoutManager =
+        binding.sdoUserNotResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
-        lsData = requireActivity().getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
+        sdoData = requireActivity().getSharedPreferences("sdoData", AppCompatActivity.MODE_PRIVATE)
         loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
-        getLsUserComplaintsID()
+        getSDOUserComplaintsID()
+
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -59,8 +59,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase()
-                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+            if (i.complaintType.lowercase().contains(newText.lowercase()) || i.dateTime.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
                     .contains(newText.lowercase())
             ) {
@@ -75,7 +74,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
         init()
     }
 
-    private fun getNotResolvedComplaintsForSDO() {
+    private fun getNotResolvedComplaintsForXEN() {
 
         if (!updatedComplaintList.isNullOrEmpty()) {
 
@@ -83,20 +82,20 @@ class LSNotResolvedComplaintFragment : Fragment() {
 
             updatedComplaintList.forEach { complaint ->
                 if (complaint.status != "Resolved") {
-                    if (getHourDifferenceOfComplaints(complaint.dateTime) >= 24 && !complaint.sentToSDO) {
+                    if (getHourDifferenceOfComplaints(complaint.dateTime) >= 48 && !complaint.sentToXEN) {
                         notResolvedComplaintList.add(complaint.id)
                     }
                 }
             }
             if (!notResolvedComplaintList.isNullOrEmpty()) {
-                getSDOPreviousUserComplaintsID(notResolvedComplaintList)
+                getXENPreviousUserComplaintsID(notResolvedComplaintList)
             }
         }
     }
 
-    private fun getSDOPreviousUserComplaintsID(notResolvedComplaintList: List<String>) {
+    private fun getXENPreviousUserComplaintsID(notResolvedComplaintList: List<String>) {
 
-        firestoreDb.collection("SDO").document(lsData.getString("sdo", "")!!)
+        firestoreDb.collection("XEN").document(sdoData.getString("xen", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
                     LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -110,29 +109,29 @@ class LSNotResolvedComplaintFragment : Fragment() {
                         addAll(notResolvedComplaintList)
                     }.toList()
 
-                    sendNotResolvedComplaintsToSDO(
-                        mergedComplaints, notResolvedComplaintList, lsData.getString("sdo", "")!!
+                    sendNotResolvedComplaintsToXEN(
+                        mergedComplaints, notResolvedComplaintList, sdoData.getString("xen", "")!!
                     )
 
                 }
             }
     }
 
-    private fun sendNotResolvedComplaintsToSDO(
-        complaintList: List<String>, notResolvedComplaintList: List<String>, sdoID: String
+    private fun sendNotResolvedComplaintsToXEN(
+        complaintList: List<String>, notResolvedComplaintList: List<String>, xenID: String
     ) {
-        firestoreDb.collection("SDO").document(sdoID).update("complaints", complaintList)
+        firestoreDb.collection("XEN").document(xenID).update("complaints", complaintList)
             .addOnSuccessListener {
-                updateComplaintSendSDOStatus(notResolvedComplaintList)
+                updateComplaintSendXENStatus(notResolvedComplaintList)
             }.addOnFailureListener {
                 Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun updateComplaintSendSDOStatus(notResolvedComplaintList: List<String>) {
+    private fun updateComplaintSendXENStatus(notResolvedComplaintList: List<String>) {
 
         for (complaint in notResolvedComplaintList) {
-            firestoreDb.collection("UserComplaints").document(complaint).update("sentToSDO", true)
+            firestoreDb.collection("UserComplaints").document(complaint).update("sentToXEN", true)
                 .addOnSuccessListener {
 
                 }.addOnFailureListener {
@@ -145,9 +144,10 @@ class LSNotResolvedComplaintFragment : Fragment() {
         val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
         return (Calendar.getInstance().timeInMillis - date.time) / (1000 * 60 * 60)
     }
-    private fun getLsUserComplaintsID() {
 
-        firestoreDb.collection("LS").document(lsData.getString("id", "")!!)
+    private fun getSDOUserComplaintsID() {
+
+        firestoreDb.collection("SDO").document(sdoData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
                     LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -158,7 +158,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
                 snapShot?.let { document ->
                     var complaints = document.get("complaints") as? List<String>
                     complaints?.let {
-                        getLsUserComplaintDataFromDb(it)
+                        getSDOUserComplaintDataFromDb(it)
                     } ?: run {
                         LoadingDialog.hideLoadingDialog(loadingDialog)
                     }
@@ -166,7 +166,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
             }
     }
 
-    private fun getLsUserComplaintDataFromDb(complaintList: List<String>) {
+    private fun getSDOUserComplaintDataFromDb(complaintList: List<String>) {
 
         if (complaintList.isEmpty()) {
             LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -178,8 +178,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
                 if (exception != null) {
                     // Handle exception
                     LoadingDialog.hideLoadingDialog(loadingDialog)
-                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
@@ -208,9 +207,9 @@ class LSNotResolvedComplaintFragment : Fragment() {
             // Fragment is not attached to an activity
             return
         }
-        adapter = LSUserComplaintAdp(requireActivity(), list)
-        binding.lsUserNotResolvedComplaintsRecycler.adapter = adapter
+        adapter = SDOUserComplaintAdp(requireActivity(), list)
+        binding.sdoUserNotResolvedComplaintsRecycler.adapter = adapter
 
-        getNotResolvedComplaintsForSDO()
+        getNotResolvedComplaintsForXEN()
     }
 }

@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 
 class LSLoginFragment : Fragment(), View.OnClickListener {
@@ -70,7 +71,7 @@ class LSLoginFragment : Fragment(), View.OnClickListener {
 
             if (it.exists()) {
                 lsModel = it.toObject(LSModel::class.java)!!
-                goToLSMainActivity(lsModel)
+                getFCMToken(lsModel)
                 Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
             } else {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -79,6 +80,25 @@ class LSLoginFragment : Fragment(), View.OnClickListener {
         }.addOnFailureListener {
             Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun getFCMToken(lsModel: LSModel) {
+        FirebaseMessaging.getInstance().getToken()
+            .addOnSuccessListener {
+                setFCMTokenToDb(it, lsModel)
+            }.addOnFailureListener {
+                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun setFCMTokenToDb(token: String?, lsModel: LSModel) {
+        firestoreDb.collection("LS").document(lsModel.id).update("lsFCMToken", token)
+            .addOnSuccessListener {
+                lsModel.lsFCMToken = token!!
+                goToLSMainActivity(lsModel)
+            }.addOnFailureListener{
+                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun isDataValid(): Boolean {

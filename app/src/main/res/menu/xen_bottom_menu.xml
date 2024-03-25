@@ -2,9 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/complaints"
-        android:title="Complaints"
-        android:icon="@drawable/complaint"
+        android:id="@+id/xenUserNotResolvedComplaints"
+        android:title="Unresolved Complaints"
+        android:icon="@drawable/pending"
+        />
+
+    <item
+        android:id="@+id/xenUserResolvedComplaints"
+        android:title="Resolved Complaints"
+        android:icon="@drawable/solved"
         />
 
     <item

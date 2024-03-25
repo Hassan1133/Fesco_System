@@ -1,5 +1,6 @@
 package com.example.fesco.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -14,7 +15,7 @@ class SplashActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed({
 
-            val pref = getSharedPreferences("login", MODE_PRIVATE)
+            val pref = getSharedPreferences("fescoLogin", Context.MODE_PRIVATE)
             val userCheck = pref.getBoolean("userFlag", false)
             val xenCheck = pref.getBoolean("xenFlag", false)
             val sdoCheck = pref.getBoolean("sdoFlag", false)

@@ -1,9 +1,9 @@
 package com.example.fesco.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
@@ -15,6 +15,7 @@ import com.example.fesco.fragments.LSNotResolvedComplaintFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
+
 
 class LMMainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -71,7 +72,7 @@ class LMMainActivity : AppCompatActivity(), View.OnClickListener {
         profileDataEditor.clear()
         profileDataEditor.apply()
 
-        val pref = getSharedPreferences("login", MODE_PRIVATE)
+        val pref = getSharedPreferences("fescoLogin", MODE_PRIVATE)
         val editor = pref.edit()
         editor.putBoolean("lmFlag", false)
         editor.apply()

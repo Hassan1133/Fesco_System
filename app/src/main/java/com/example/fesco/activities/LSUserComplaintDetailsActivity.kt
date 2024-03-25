@@ -31,8 +31,6 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
 
     private lateinit var lmList: List<LMModel>
 
-    private lateinit var userComplaintList: ArrayList<UserComplaintModel>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLsuserComplaintDetailsBinding.inflate(layoutInflater)
@@ -47,7 +45,6 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
     private fun init() {
         loadingDialog = LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!!
         firestoreDb = Firebase.firestore
-        userComplaintList = arrayListOf()
         getDataFromIntentSetToFields()
     }
 
@@ -60,6 +57,7 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
         binding.address.text = userComplaintModel.address
         binding.status.text = userComplaintModel.status
         binding.phone.text = userComplaintModel.phoneNo
+        binding.feedback.text = userComplaintModel.feedback
 
         if (userComplaintModel.lm.isNullOrEmpty()) {
             getLMArrayFromSharedPreferences()
