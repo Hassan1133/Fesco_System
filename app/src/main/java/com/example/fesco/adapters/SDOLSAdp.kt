@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fesco.R
-import com.example.fesco.activities.SDOLSDetailsActivity
+import com.example.fesco.activities.sdo.SDOLSDetailsActivity
 import com.example.fesco.models.LSModel
 
 class SDOLSAdp (private val context: Context, private val lsList: List<LSModel>) :

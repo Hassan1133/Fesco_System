@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fesco.R
-import com.example.fesco.activities.XENSDODetailsActivity
+import com.example.fesco.activities.xen.XENSDODetailsActivity
 import com.example.fesco.models.SDOModel
 
 class XENSDOAdp(private val context: Context, private val sdoList: List<SDOModel>) :

@@ -9,6 +9,7 @@ data class SDOModel(
     var city: String = "",
     var subDivision : String = "",
     var xen : String = "",
+    var sdoFCMToken : String = "",
     var ls : List<String> = emptyList(),
     var complaints: List<String> = emptyList(),
     var area : List<String> = emptyList()

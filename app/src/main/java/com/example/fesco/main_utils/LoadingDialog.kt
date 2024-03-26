@@ -14,14 +14,14 @@ class LoadingDialog {
 
         fun showLoadingDialog(context: Context?): Dialog? {
             dialog = Dialog(context!!)
-            dialog!!.setContentView(R.layout.loading_dialog)
-            dialog!!.setCancelable(false) // To prevent the dialog from being dismissed by touching outside
+            dialog.setContentView(R.layout.loading_dialog)
+            dialog.setCancelable(false) // To prevent the dialog from being dismissed by touching outside
 
             // Make the dialog background transparent
-            if (dialog!!.window != null) {
-                dialog!!.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            if (dialog.window != null) {
+                dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             }
-            dialog!!.show()
+            dialog.show()
             return dialog
         }
 

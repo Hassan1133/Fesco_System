@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fesco.R
-import com.example.fesco.activities.LSUserComplaintDetailsActivity
+import com.example.fesco.activities.ls.LSUserComplaintDetailsActivity
 import com.example.fesco.models.UserComplaintModel
 
 class LSUserComplaintAdp (private val context: Context, private val complaintList: List<UserComplaintModel>) :

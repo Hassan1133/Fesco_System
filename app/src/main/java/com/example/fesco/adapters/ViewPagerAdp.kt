@@ -4,11 +4,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.fesco.fragments.LMLoginFragment
-import com.example.fesco.fragments.LSLoginFragment
-import com.example.fesco.fragments.SDOLoginFragment
-import com.example.fesco.fragments.UserLoginFragment
-import com.example.fesco.fragments.XENLoginFragment
+import com.example.fesco.fragments.lm.LMLoginFragment
+import com.example.fesco.fragments.ls.LSLoginFragment
+import com.example.fesco.fragments.sdo.SDOLoginFragment
+import com.example.fesco.fragments.user.UserLoginFragment
+import com.example.fesco.fragments.xen.XENLoginFragment
 
 class ViewPagerAdp(fm: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fm, lifecycle) {

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fillViewport="true"
-    tools:context=".activities.XENProfileActivity">
+    tools:context=".activities.xen.XENProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -5,7 +5,7 @@
     android:id="@+id/LSComplaintFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.LSNotResolvedComplaintFragment">
+    tools:context=".fragments.ls.LSNotResolvedComplaintFragment">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"

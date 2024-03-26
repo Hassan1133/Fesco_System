@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fesco.R
-import com.example.fesco.activities.LSLMDetailsActivity
+import com.example.fesco.activities.ls.LSLMDetailsActivity
 import com.example.fesco.models.LMModel
 
 class LSLMAdp (private val context: Context, private val lmList: List<LMModel>) :

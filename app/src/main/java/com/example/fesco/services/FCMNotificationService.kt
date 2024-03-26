@@ -1,5 +1,6 @@
 package com.example.fesco.services
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,12 +9,16 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.fesco.R
-import com.example.fesco.activities.LSMainActivity
-import com.example.fesco.activities.LoginActivity
+import com.example.fesco.activities.ls.LSMainActivity
+import com.example.fesco.activities.common.LoginActivity
+import com.example.fesco.activities.lm.LMMainActivity
+import com.example.fesco.activities.sdo.SDOMainActivity
+import com.example.fesco.activities.xen.XENMainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
+@SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class FCMNotificationService : FirebaseMessagingService() {
 
     private val channelId = "FescoComplaintsChannel"
@@ -63,7 +68,10 @@ class FCMNotificationService : FirebaseMessagingService() {
 
     private fun getMainActivityClass(userType: String): Class<*> {
         return when (userType) {
-            "user" -> LSMainActivity::class.java
+            "userToLs" -> LSMainActivity::class.java
+            "lsToLm" -> LMMainActivity::class.java
+            "lsToSdo" -> SDOMainActivity::class.java
+            "sdoToXen" -> XENMainActivity::class.java
             else -> LoginActivity::class.java
         }
     }
