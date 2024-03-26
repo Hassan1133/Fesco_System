@@ -11,7 +11,8 @@ import com.example.fesco.R
 import com.example.fesco.activities.common.LoginActivity
 import com.example.fesco.databinding.ActivityUserSignUpBinding
 import com.example.fesco.main_utils.LoadingDialog
-import com.example.fesco.models.User
+import com.example.fesco.main_utils.NetworkManager
+import com.example.fesco.models.UserModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -50,9 +51,20 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
             }
 
             R.id.signUpBtn -> {
-                if (isDataValid()) {
-                    loadingDialog = LoadingDialog.showLoadingDialog(this)!!
-                    isConsumerExists()
+
+                val networkManager = NetworkManager(this@UserSignUpActivity)
+
+                val isConnected = networkManager.isNetworkAvailable()
+
+                if (isConnected) {
+                    if (isDataValid()) {
+                        loadingDialog = LoadingDialog.showLoadingDialog(this)!!
+                        isConsumerExists()
+                    }
+                } else {
+                    Toast.makeText(
+                        this@UserSignUpActivity, "Please connect to internet", Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -75,14 +87,12 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun signup(ls: String, sdo: String, xen: String) {
-        val user = User()
+        val user = UserModel()
         user.consumerID = binding.consumerNo.text.toString()
         user.name = binding.name.text.toString()
         user.phoneNo = binding.phoneNo.text.toString()
         user.address = binding.address.text.toString()
         user.ls = ls
-        user.sdo = sdo
-        user.xen = xen
         user.key = binding.password.text.toString()
         db.collection(usersRef).document(binding.consumerNo.text.toString()).set(user)
             .addOnSuccessListener {

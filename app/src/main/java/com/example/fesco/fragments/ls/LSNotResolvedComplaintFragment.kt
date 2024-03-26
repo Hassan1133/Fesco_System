@@ -46,10 +46,13 @@ class LSNotResolvedComplaintFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLSNotResolvedComplaintBinding.inflate(inflater, container, false)
-        init()
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
     private fun init() {
         firestoreDb = FirebaseFirestore.getInstance()
         updatedComplaintList = mutableListOf<UserComplaintModel>()
@@ -73,9 +76,14 @@ class LSNotResolvedComplaintFragment : Fragment() {
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase()
-                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+
+            if (i.consumerID.contains(newText) || i.userName.lowercase()
+                    .contains(newText.lowercase()) || i.phoneNo.contains(newText) || i.address.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
+                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+                    .contains(newText.lowercase()) || i.complaintType.lowercase()
+                    .contains(newText.lowercase()) || i.feedback.lowercase()
+                    .contains(newText.lowercase()) || getHoursDifferenceUpdatedText(i.dateTime).lowercase()
                     .contains(newText.lowercase())
             ) {
                 searchList.add(i)
@@ -84,6 +92,11 @@ class LSNotResolvedComplaintFragment : Fragment() {
         setDataToRecycler(searchList)
     }
 
+    private fun getHoursDifferenceUpdatedText(dateTime: String): String {
+        val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
+
+        return "$dateTimeLong hours"
+    }
     private fun getNotResolvedComplaintsForSDO() {
 
         if (updatedComplaintList.isNotEmpty()) {
@@ -173,7 +186,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
                         requireActivity().getSharedPreferences("lsData", Context.MODE_PRIVATE)
                             .getString("name", "")
                     )
-                    put("body", "needs help right now.")
+                    put("body", "LS has unresolved complaints.")
                     put("userType", "lsToSdo")
                 }
                 put("data", dataObj)
@@ -208,14 +221,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                requireActivity().runOnUiThread {
-                    Toast.makeText(
-                        requireActivity(),
-                        "Your unresolved Complaints has been sent to SDO",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                }
+
             }
         })
     }

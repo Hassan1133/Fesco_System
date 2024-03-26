@@ -14,6 +14,7 @@ import com.example.fesco.R
 import com.example.fesco.activities.ls.LSMainActivity
 import com.example.fesco.databinding.FragmentLsLoginBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.LSModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -117,9 +118,20 @@ class LSLoginFragment : Fragment(), View.OnClickListener {
         when (v.id) {
 
             R.id.loginBtn -> {
-                if (isDataValid()) {
-                    loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
-                    signIn(binding.email.text.toString(), binding.password.text.toString())
+
+                val networkManager = NetworkManager(requireActivity())
+
+                val isConnected = networkManager.isNetworkAvailable()
+
+                if (isConnected) {
+                    if (isDataValid()) {
+                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
+                        signIn(binding.email.text.toString(), binding.password.text.toString())
+                    }
+                } else {
+                    Toast.makeText(
+                        requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -137,9 +149,11 @@ class LSLoginFragment : Fragment(), View.OnClickListener {
 
         Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(activity, LSMainActivity()::class.java)
-        startActivity(intent)
-        activity?.finish()
+        activity?.let {
+            val intent = Intent(activity, LSMainActivity()::class.java)
+            startActivity(intent)
+            activity?.finish()
+        }
     }
 
     private fun setProfileDataToSharedPreferences(model : LSModel) {

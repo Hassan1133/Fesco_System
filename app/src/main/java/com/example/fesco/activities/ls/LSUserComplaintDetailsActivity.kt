@@ -184,7 +184,7 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
             val jsonObject = JSONObject().apply {
                 val dataObj = JSONObject().apply {
                     put("title", getSharedPreferences("lsData", Context.MODE_PRIVATE).getString("name",""))
-                    put("body", "needs help right now.")
+                    put("body", "LS has assigned you a complaint.")
                     put("userType", "lsToLm")
                 }
                 put("data", dataObj)

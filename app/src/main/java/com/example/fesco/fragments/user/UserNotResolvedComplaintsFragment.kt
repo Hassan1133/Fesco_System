@@ -22,6 +22,7 @@ import com.example.fesco.adapters.UserComplaintAdp
 import com.example.fesco.databinding.ComplaintDialogBinding
 import com.example.fesco.databinding.FragmentUserNotReslovedComplaintsBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
@@ -40,6 +41,7 @@ import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 
 
@@ -63,8 +65,12 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentUserNotReslovedComplaintsBinding.inflate(layoutInflater, container, false)
-        init()
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        init()
     }
 
     private fun init() {
@@ -91,15 +97,31 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase()
-                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+            if (i.consumerID.contains(newText) || i.userName.lowercase()
+                    .contains(newText.lowercase()) || i.phoneNo.contains(newText) || i.address.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
+                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+                    .contains(newText.lowercase()) || i.complaintType.lowercase()
+                    .contains(newText.lowercase()) || i.feedback.lowercase()
+                    .contains(newText.lowercase()) || getHoursDifferenceUpdatedText(i.dateTime).lowercase()
                     .contains(newText.lowercase())
             ) {
                 searchList.add(i)
             }
         }
         setDataToRecycler(searchList)
+    }
+
+    private fun getHoursDifferenceUpdatedText(dateTime: String): String {
+        val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
+
+        return "$dateTimeLong hours"
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun getHourDifferenceOfComplaints(dateString: String): Long {
+        val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
+        return (Calendar.getInstance().timeInMillis - date!!.time) / (1000 * 60 * 60)
     }
 
     private fun getUserComplaintsID() {
@@ -165,7 +187,17 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.addComplaintBtn -> createComplaintDialog()
+            R.id.addComplaintBtn -> {
+                val networkManager = NetworkManager(requireActivity())
+                val isConnected = networkManager.isNetworkAvailable()
+                if (isConnected) {
+                    createComplaintDialog()
+                } else {
+                    Toast.makeText(
+                        requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 
@@ -311,7 +343,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
             val jsonObject = JSONObject().apply {
                 val dataObj = JSONObject().apply {
                     put("title", userData.getString("name", ""))
-                    put("body", "needs help right now.")
+                    put("body", "user has registered a complaint.")
                     put("userType", "userToLs")
                 }
                 put("data", dataObj)

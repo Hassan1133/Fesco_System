@@ -1,5 +1,6 @@
 package com.example.fesco.fragments.user
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -18,7 +19,8 @@ import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 class UserResolvedComplaintsFragment : Fragment() {
 
@@ -35,12 +37,15 @@ class UserResolvedComplaintsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentUserResolvedComplaintsBinding.inflate(layoutInflater, container, false)
-        init()
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
 
     private fun init() {
         firestoreDb = Firebase.firestore
@@ -65,15 +70,31 @@ class UserResolvedComplaintsFragment : Fragment() {
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase(Locale.getDefault())
-                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+            if (i.consumerID.contains(newText) || i.userName.lowercase()
+                    .contains(newText.lowercase()) || i.phoneNo.contains(newText) || i.address.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
+                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+                    .contains(newText.lowercase()) || i.complaintType.lowercase()
+                    .contains(newText.lowercase()) || i.feedback.lowercase()
+                    .contains(newText.lowercase()) || getHoursDifferenceUpdatedText(i.dateTime).lowercase()
                     .contains(newText.lowercase())
             ) {
                 searchList.add(i)
             }
         }
         setDataToRecycler(searchList)
+    }
+
+    private fun getHoursDifferenceUpdatedText(dateTime: String): String {
+        val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
+
+        return "$dateTimeLong hours"
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun getHourDifferenceOfComplaints(dateString: String): Long {
+        val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
+        return (Calendar.getInstance().timeInMillis - date!!.time) / (1000 * 60 * 60)
     }
 
     private fun getUserComplaintsID() {

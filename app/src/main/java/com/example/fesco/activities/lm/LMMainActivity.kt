@@ -1,18 +1,19 @@
 package com.example.fesco.activities.lm
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.activities.common.LoginActivity
 import com.example.fesco.databinding.ActivityLmmainBinding
 import com.example.fesco.fragments.lm.LMNotResolvedComplaintFragment
 import com.example.fesco.fragments.lm.LMResolvedComplaintFragment
-import com.example.fesco.fragments.ls.LSLMFragment
-import com.example.fesco.fragments.ls.LSNotResolvedComplaintFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +36,32 @@ class LMMainActivity : AppCompatActivity(), View.OnClickListener {
         setLMName()
         loadFragment(LMNotResolvedComplaintFragment())
         bottomNavigationSelection()
+        checkNotificationPermission()
+    }
+
+    private val launcher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, proceed with your action
+        } else {
+            // Permission denied or forever denied, handle accordingly
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            // Permission is already granted, proceed with your action
+        } else {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // Show rationale to the user, then request permission using launcher
+            } else {
+                // Request permission directly using launcher
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
     }
 
     private fun setLMName() {
@@ -99,19 +126,6 @@ class LMMainActivity : AppCompatActivity(), View.OnClickListener {
     private fun loadFragment(fragment: Fragment?) {
         if (fragment != null) {
             supportFragmentManager.beginTransaction().replace(R.id.lmFrame, fragment).commit()
-            when (fragment) {
-                is LSNotResolvedComplaintFragment -> {
-                    if (!binding.bottomNavigation.menu[0].isChecked) {
-                        binding.bottomNavigation.menu[0].isChecked = true
-                    }
-                }
-
-                is LSLMFragment -> {
-                    if (!binding.bottomNavigation.menu[1].isChecked) {
-                        binding.bottomNavigation.menu[1].isChecked = true
-                    }
-                }
-            }
         }
     }
 }

@@ -15,7 +15,8 @@ import com.example.fesco.activities.user.UserMainActivity
 import com.example.fesco.activities.user.UserSignUpActivity
 import com.example.fesco.databinding.FragmentUserLoginBinding
 import com.example.fesco.main_utils.LoadingDialog
-import com.example.fesco.models.User
+import com.example.fesco.main_utils.NetworkManager
+import com.example.fesco.models.UserModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -30,10 +31,10 @@ class UserLoginFragment : Fragment(), OnClickListener {
 
     private lateinit var loadingDialog: Dialog
 
-    private lateinit var user: User
+    private lateinit var user: UserModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentUserLoginBinding.inflate(inflater, container, false)
         init()
         return binding.root
@@ -57,9 +58,20 @@ class UserLoginFragment : Fragment(), OnClickListener {
             }
 
             R.id.loginBtn -> {
-                if (isDataValid()) {
-                    loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
-                    signIn()
+
+                val networkManager = NetworkManager(requireActivity())
+
+                val isConnected = networkManager.isNetworkAvailable()
+
+                if (isConnected) {
+                    if (isDataValid()) {
+                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
+                        signIn()
+                    }
+                } else {
+                    Toast.makeText(
+                        requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -84,7 +96,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
                 if (it.exists()) {
                     if (it.getString("consumerID") == binding.consumerNo.text.toString()) {
                         if (it.getString("key") == binding.password.text.toString()) {
-                            user = it.toObject(User::class.java)!!
+                            user = it.toObject(UserModel::class.java)!!
                             goToUserMainActivity(user)
                             Toast.makeText(activity, "Logged in successfully", Toast.LENGTH_SHORT)
                                 .show()
@@ -107,7 +119,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
             }
     }
 
-    private fun goToUserMainActivity(model : User) {
+    private fun goToUserMainActivity(model: UserModel) {
 
         getUserProfileData(model)
 
@@ -118,12 +130,14 @@ class UserLoginFragment : Fragment(), OnClickListener {
         editor?.putBoolean("userFlag", true)
         editor?.apply()
 
-        val intent = Intent(activity, UserMainActivity::class.java)
-        startActivity(intent)
-        activity?.finish()
+        activity?.let {
+            val intent = Intent(activity, UserMainActivity::class.java)
+            startActivity(intent)
+            activity?.finish()
+        }
     }
 
-    private fun getUserProfileData(model : User) {
+    private fun getUserProfileData(model: UserModel) {
         val userData = context?.getSharedPreferences("userData", Context.MODE_PRIVATE)
         val editor = userData?.edit()
 
@@ -132,8 +146,6 @@ class UserLoginFragment : Fragment(), OnClickListener {
         editor?.putString("address", model.address)
         editor?.putString("phoneNo", model.phoneNo)
         editor?.putString("ls", model.ls)
-        editor?.putString("sdo", model.sdo)
-        editor?.putString("xen", model.xen)
         editor?.apply()
     }
 }

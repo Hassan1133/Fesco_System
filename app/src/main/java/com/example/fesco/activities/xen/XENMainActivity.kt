@@ -1,9 +1,13 @@
 package com.example.fesco.activities.xen
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.fesco.R
@@ -32,8 +36,33 @@ class XENMainActivity : AppCompatActivity() , OnClickListener{
         setXENName()
         bottomNavigationSelection()
         loadFragment(XENNotResolvedComplaintFragment())
+        checkNotificationPermission()
     }
 
+    private val launcher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, proceed with your action
+        } else {
+            // Permission denied or forever denied, handle accordingly
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            // Permission is already granted, proceed with your action
+        } else {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // Show rationale to the user, then request permission using launcher
+            } else {
+                // Request permission directly using launcher
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
     private fun setXENName() {
         val xenData = getSharedPreferences("xenData", MODE_PRIVATE)
         binding.name.text = xenData.getString("name", "")

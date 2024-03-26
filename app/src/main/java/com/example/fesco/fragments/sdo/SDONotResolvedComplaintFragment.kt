@@ -69,18 +69,28 @@ class SDONotResolvedComplaintFragment : Fragment() {
             }
         })
     }
-
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase().contains(newText.lowercase()) || i.dateTime.lowercase()
+            if (i.consumerID.contains(newText) || i.userName.lowercase()
+                    .contains(newText.lowercase()) || i.phoneNo.contains(newText) || i.address.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
+                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+                    .contains(newText.lowercase()) || i.complaintType.lowercase()
+                    .contains(newText.lowercase()) || i.feedback.lowercase()
+                    .contains(newText.lowercase()) || getHoursDifferenceUpdatedText(i.dateTime).lowercase()
                     .contains(newText.lowercase())
             ) {
                 searchList.add(i)
             }
         }
         setDataToRecycler(searchList)
+    }
+
+    private fun getHoursDifferenceUpdatedText(dateTime: String): String {
+        val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
+
+        return "$dateTimeLong hours"
     }
 
     private fun getNotResolvedComplaintsForXEN() {
@@ -158,7 +168,7 @@ class SDONotResolvedComplaintFragment : Fragment() {
                         requireActivity().getSharedPreferences("sdoData", Context.MODE_PRIVATE)
                             .getString("name", "")
                     )
-                    put("body", "needs help right now.")
+                    put("body", "SDO has unresolved complaints.")
                     put("userType", "sdoToXen")
                 }
                 put("data", dataObj)
@@ -169,6 +179,8 @@ class SDONotResolvedComplaintFragment : Fragment() {
             // Handle exception
         }
     }
+
+
 
     private fun callApi(jsonObject: JSONObject) {
         val json: MediaType = "application/json; charset=utf-8".toMediaType()
@@ -193,14 +205,7 @@ class SDONotResolvedComplaintFragment : Fragment() {
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                requireActivity().runOnUiThread {
-                    Toast.makeText(
-                        requireActivity(),
-                        "Your unresolved Complaints has been sent to XEN",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                }
+
             }
         })
     }

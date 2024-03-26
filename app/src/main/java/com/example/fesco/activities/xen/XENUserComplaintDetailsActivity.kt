@@ -52,7 +52,7 @@ class XENUserComplaintDetailsActivity : AppCompatActivity() {
     private fun getSDOId(consumerID: String) {
         firestoreDb.collection("Users").document(consumerID).get()
             .addOnSuccessListener {
-                getSDOData(it.getString("sdo"))
+                getLsData(it.getString("ls"))
             }
             .addOnFailureListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -61,15 +61,25 @@ class XENUserComplaintDetailsActivity : AppCompatActivity() {
             }
     }
 
-    private fun getSDOData(lsId: String?) {
-        firestoreDb.collection("SDO").document(lsId!!).get()
+    private fun getLsData(lsId: String?) {
+        firestoreDb.collection("LS").document(lsId!!).get()
             .addOnSuccessListener {
-                binding.sdo.text = it.getString("name")
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                getSDOData(it.getString("sdo")!!)
             }.addOnFailureListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(this@XENUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
                     .show()
             }
+    }
+
+    private fun getSDOData(sdoId: String) {
+        firestoreDb.collection("SDO").document(sdoId).get().addOnSuccessListener {
+            binding.sdo.text = it.getString("name")
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+        }.addOnFailureListener {
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            Toast.makeText(this@XENUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 }

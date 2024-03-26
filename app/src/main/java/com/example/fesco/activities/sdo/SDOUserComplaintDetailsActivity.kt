@@ -24,12 +24,8 @@ class SDOUserComplaintDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySdouserComplaintDetailsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-    }
-
-    override fun onResume() {
-        super.onResume()
         init()
+        setContentView(binding.root)
     }
 
     private fun init() {

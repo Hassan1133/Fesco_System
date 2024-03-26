@@ -72,7 +72,7 @@ class LMUserComplaintDetailsActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(this@LMUserComplaintDetailsActivity, "Complaint status updated successfully", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener{
-                Toast.makeText(this@LMUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@LMUserComplaintDetailsActivity, "${it.message} --updatedComplaintStatusToDb", Toast.LENGTH_SHORT).show()
             }
     }
 }

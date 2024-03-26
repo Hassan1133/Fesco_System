@@ -14,6 +14,7 @@ import com.example.fesco.R
 import com.example.fesco.activities.lm.LMMainActivity
 import com.example.fesco.databinding.FragmentLmLoginBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.LMModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,6 +35,7 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
     private lateinit var lmModel: LMModel
 
     private lateinit var loadingDialog: Dialog
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -114,9 +116,20 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
         when (v.id) {
 
             R.id.loginBtn -> {
-                if (isDataValid()) {
-                    loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
-                    signIn(binding.email.text.toString(), binding.password.text.toString())
+
+                val networkManager = NetworkManager(requireActivity())
+
+                val isConnected = networkManager.isNetworkAvailable()
+
+                if (isConnected) {
+                    if (isDataValid()) {
+                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
+                        signIn(binding.email.text.toString(), binding.password.text.toString())
+                    }
+                } else {
+                    Toast.makeText(
+                        requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -134,9 +147,11 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
 
         Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(activity, LMMainActivity()::class.java)
-        startActivity(intent)
-        activity?.finish()
+        activity?.let {
+            val intent = Intent(it, LMMainActivity::class.java)
+            it.startActivity(intent)
+            it.finish()
+        }
     }
 
     private fun setProfileDataToSharedPreferences(model : LMModel) {

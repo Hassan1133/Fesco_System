@@ -1,5 +1,6 @@
 package com.example.fesco.fragments.xen
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -16,6 +17,8 @@ import com.example.fesco.databinding.FragmentXENNotResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 
 class XENNotResolvedComplaintFragment : Fragment() {
@@ -29,11 +32,15 @@ class XENNotResolvedComplaintFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentXENNotResolvedComplaintBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
     private fun init() {
         firestoreDb = FirebaseFirestore.getInstance()
         updatedComplaintList = mutableListOf<UserComplaintModel>()
@@ -58,9 +65,13 @@ class XENNotResolvedComplaintFragment : Fragment() {
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
-            if (i.complaintType.lowercase()
-                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+            if (i.consumerID.contains(newText) || i.userName.lowercase()
+                    .contains(newText.lowercase()) || i.phoneNo.contains(newText) || i.address.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
+                    .contains(newText.lowercase()) || i.dateTime.lowercase()
+                    .contains(newText.lowercase()) || i.complaintType.lowercase()
+                    .contains(newText.lowercase()) || i.feedback.lowercase()
+                    .contains(newText.lowercase()) || getHoursDifferenceUpdatedText(i.dateTime).lowercase()
                     .contains(newText.lowercase())
             ) {
                 searchList.add(i)
@@ -69,9 +80,16 @@ class XENNotResolvedComplaintFragment : Fragment() {
         setDataToRecycler(searchList)
     }
 
-    override fun onResume() {
-        super.onResume()
-        init()
+    private fun getHoursDifferenceUpdatedText(dateTime: String): String {
+        val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
+
+        return "$dateTimeLong hours"
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun getHourDifferenceOfComplaints(dateString: String): Long {
+        val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
+        return (Calendar.getInstance().timeInMillis - date!!.time) / (1000 * 60 * 60)
     }
 
     private fun getXENUserComplaintsID() {
@@ -117,8 +135,8 @@ class XENNotResolvedComplaintFragment : Fragment() {
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
                     complaint?.let {
-                        if (complaint?.status != "Resolved") {
-                            complaint?.let {
+                        if (complaint.status != "Resolved") {
+                            complaint.let {
                                 updatedComplaintList.add(it)
                             }
                         }
