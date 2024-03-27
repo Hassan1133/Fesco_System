@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.XENUserComplaintAdp
 import com.example.fesco.databinding.FragmentXENNotResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -34,22 +35,18 @@ class XENNotResolvedComplaintFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentXENNotResolvedComplaintBinding.inflate(inflater, container, false)
+        checkNetworkConnectivity()
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        init()
-    }
     private fun init() {
         firestoreDb = FirebaseFirestore.getInstance()
         updatedComplaintList = mutableListOf<UserComplaintModel>()
         binding.xenUserNotResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
         xenData = requireActivity().getSharedPreferences("xenData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getXENUserComplaintsID()
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -60,6 +57,28 @@ class XENNotResolvedComplaintFragment : Fragment() {
                 return true
             }
         })
+    }
+
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun search(newText: String) {
@@ -103,7 +122,7 @@ class XENNotResolvedComplaintFragment : Fragment() {
                 }
 
                 snapShot?.let { document ->
-                    var complaints = document.get("complaints") as? List<String>
+                    val complaints = document.get("complaints") as? List<String>
                     complaints?.let {
                         getXENUserComplaintDataFromDb(it)
                     } ?: run {

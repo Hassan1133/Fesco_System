@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.SDOUserComplaintAdp
 import com.example.fesco.databinding.FragmentSDONotResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
 import okhttp3.Call
@@ -45,7 +46,7 @@ class SDONotResolvedComplaintFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentSDONotResolvedComplaintBinding.inflate(inflater, container, false)
-        init()
+        checkNetworkConnectivity()
         return binding.root
     }
 
@@ -55,9 +56,8 @@ class SDONotResolvedComplaintFragment : Fragment() {
         binding.sdoUserNotResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
         sdoData = requireActivity().getSharedPreferences("sdoData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getSDOUserComplaintsID()
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -68,6 +68,28 @@ class SDONotResolvedComplaintFragment : Fragment() {
                 return true
             }
         })
+    }
+
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()

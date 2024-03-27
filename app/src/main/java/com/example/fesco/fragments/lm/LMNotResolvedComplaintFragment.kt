@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.LMUserComplaintAdp
 import com.example.fesco.databinding.FragmentLMNotResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -38,13 +39,11 @@ class LMNotResolvedComplaintFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+// Inflate the layout for this fragment
         binding = FragmentLMNotResolvedComplaintBinding.inflate(inflater, container, false)
+        // check network connectivity
+        checkNetworkConnectivity()
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        init()
     }
 
     private fun init() {
@@ -53,8 +52,10 @@ class LMNotResolvedComplaintFragment : Fragment() {
             LinearLayoutManager(requireActivity())
         updatedComplaintList = mutableListOf<UserComplaintModel>()
         lmData = requireActivity().getSharedPreferences("lmData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
+        // Fetch LM user complaints from Firestore
         getLMUserComplaintsID()
+        // Setup search functionality
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -67,6 +68,30 @@ class LMNotResolvedComplaintFragment : Fragment() {
         })
     }
 
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                // Initialize fragment components
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    // Search for complaints based on user input
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
@@ -82,33 +107,37 @@ class LMNotResolvedComplaintFragment : Fragment() {
                 searchList.add(i)
             }
         }
+        // Update RecyclerView with search results
         setDataToRecycler(searchList)
     }
 
+    // Calculate hours difference between complaint date and current date
     private fun getHoursDifferenceUpdatedText(dateTime: String): String {
         val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
-
         return "$dateTimeLong hours"
     }
 
+    // Get hours difference between two dates
     @SuppressLint("SimpleDateFormat")
     private fun getHourDifferenceOfComplaints(dateString: String): Long {
         val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
         return (Calendar.getInstance().timeInMillis - date!!.time) / (1000 * 60 * 60)
     }
-    private fun getLMUserComplaintsID() {
 
+    // Fetch LM user complaints from Firestore
+    private fun getLMUserComplaintsID() {
         firestoreDb.collection("LM").document(lmData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
+                    // Handle Firestore query exception
                     LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-
                 snapShot?.let { document ->
                     val complaints = document.get("complaints") as? List<String>
                     complaints?.let {
+                        // Fetch complaint details from Firestore
                         getLMUserComplaintDataFromDb(it)
                     } ?: run {
                         LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -117,43 +146,40 @@ class LMNotResolvedComplaintFragment : Fragment() {
             }
     }
 
+    // Fetch details of LM user complaints from Firestore
     private fun getLMUserComplaintDataFromDb(complaintList: List<String>) {
-
         if (complaintList.isEmpty()) {
             LoadingDialog.hideLoadingDialog(loadingDialog)
             return
         }
-
         firestoreDb.collection("UserComplaints").whereIn("id", complaintList)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
-                    // Handle exception
+                    // Handle Firestore query exception
                     LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
                 }
-
                 updatedComplaintList.clear()
-
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
                     complaint?.let {
                         if (complaint.status != "Resolved") {
-                            complaint.let {
-                                updatedComplaintList.add(it)
-                            }
+                            // Add unresolved complaints to the list
+                            updatedComplaintList.add(it)
                         }
                     }
                 }
-
-                // Update the UI with the updated complaint list
+                // Sort the complaint list by date
                 updatedComplaintList.sortByDescending { it.dateTime }
+                // Update RecyclerView with complaint data
                 setDataToRecycler(updatedComplaintList)
                 LoadingDialog.hideLoadingDialog(loadingDialog)
             }
     }
 
+    // Update RecyclerView with complaint data
     private fun setDataToRecycler(list: List<UserComplaintModel>) {
         if (!isAdded) {
             // Fragment is not attached to an activity

@@ -13,7 +13,7 @@ class LoadingDialog {
         private lateinit var dialog: Dialog
 
         // Function to show the loading dialog
-        fun showLoadingDialog(context: Context?): Dialog? {
+        fun showLoadingDialog(context: Context?): Dialog {
             // Create a new dialog instance with the given context
             dialog = Dialog(context!!)
             dialog.setContentView(R.layout.loading_dialog)

@@ -45,60 +45,123 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
         init()
         return binding.root
     }
+
+    // Initialize Firebase components
     private fun init() {
         firebaseAuth = FirebaseAuth.getInstance()
         firestoreDb = Firebase.firestore
 
+        // Set click listener for login button
         binding.loginBtn.setOnClickListener(this)
         lmRef = "LM"
     }
 
-    private fun signIn(email: String, password: String) {
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-
-            if (it.isSuccessful) {
-                checkLMExists(it.result.user!!.uid)
+    // Handle click events
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.loginBtn -> {
+                // Check network connectivity
+                val networkManager = NetworkManager(requireActivity())
+                try {
+                    val isConnected = networkManager.isNetworkAvailable()
+                    if (isConnected) {
+                        // Validate user input
+                        if (isDataValid()) {
+                            // Perform sign in
+                            signIn(binding.email.text.toString(), binding.password.text.toString())
+                        }
+                    } else {
+                        activity?.let {
+                            Toast.makeText(
+                                requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Handle network check exception
+                    activity?.let {
+                        Toast.makeText(
+                            requireActivity(), "Network check failed", Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
-
-        }.addOnFailureListener {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun checkLMExists(userId: String) {
-        firestoreDb.collection(lmRef).document(userId).get().addOnSuccessListener {
+    // Sign in with email and password
+    private fun signIn(email: String, password: String) {
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Check if LM exists after successful sign-in
+                loadingDialog = LoadingDialog.showLoadingDialog(activity)
+                checkLMExists(task.result.user!!.uid)
+            }
+        }.addOnFailureListener { exception ->
+            // Handle authentication failure
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            activity?.let {
+                Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
-            if (it.exists()) {
-                lmModel = it.toObject(LMModel::class.java)!!
+    // Check if LM exists in Firestore
+    private fun checkLMExists(userId: String) {
+        firestoreDb.collection(lmRef).document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // LM exists, retrieve data
+                lmModel = document.toObject(LMModel::class.java)!!
+                // Get FCM token
                 getFCMToken(lmModel)
             } else {
+                // LM doesn't exist
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(activity, "Account doesn't exist", Toast.LENGTH_SHORT).show()
+                activity?.let {
+                    Toast.makeText(activity, "Account doesn't exist", Toast.LENGTH_SHORT).show()
+                }
             }
-        }.addOnFailureListener {
-            Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener { exception ->
+            // Handle Firestore query failure
+            activity?.let {
+                Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
+    // Get FCM token for notifications
     private fun getFCMToken(lmModel: LMModel) {
-        FirebaseMessaging.getInstance().getToken()
-            .addOnSuccessListener {
-                setFCMTokenToDb(it, lmModel)
-            }.addOnFailureListener {
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            // Update FCM token in Firestore
+            setFCMTokenToDb(token, lmModel)
+        }.addOnFailureListener { exception ->
+            // Handle FCM token retrieval failure
+            activity?.let {
+                Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
             }
+        }
     }
 
+    // Update FCM token in Firestore
     private fun setFCMTokenToDb(token: String?, lmModel: LMModel) {
-        firestoreDb.collection("LM").document(lmModel.id).update("lmFCMToken", token)
-            .addOnSuccessListener {
-                lmModel.lmFCMToken = token!!
-                goToLMMainActivity(lmModel)
-            }.addOnFailureListener{
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+        firestoreDb.runTransaction { transaction ->
+            val lmDocRef = firestoreDb.collection("LM").document(lmModel.id)
+            transaction.update(lmDocRef, "lmFCMToken", token)
+
+        }.addOnSuccessListener {
+            // Update LMModel with FCM token
+            lmModel.lmFCMToken = token!!
+            // Proceed to main activity
+            goToLMMainActivity(lmModel)
+        }.addOnFailureListener { exception ->
+            // Handle transaction failure
+            activity?.let {
+                Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
             }
+        }
     }
+
+    // Validate user input
     private fun isDataValid(): Boolean {
         var valid = true
         if (!Patterns.EMAIL_ADDRESS.matcher(binding.email.text.toString()).matches()) {
@@ -112,32 +175,9 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
         return valid
     }
 
-    override fun onClick(v: View) {
-        when (v.id) {
-
-            R.id.loginBtn -> {
-
-                val networkManager = NetworkManager(requireActivity())
-
-                val isConnected = networkManager.isNetworkAvailable()
-
-                if (isConnected) {
-                    if (isDataValid()) {
-                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
-                        signIn(binding.email.text.toString(), binding.password.text.toString())
-                    }
-                } else {
-                    Toast.makeText(
-                        requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-        }
-    }
-
-    private fun goToLMMainActivity(model : LMModel) {
-
+    // Proceed to LM main activity after successful login
+    private fun goToLMMainActivity(model: LMModel) {
+        // Store login state in SharedPreferences
         setProfileDataToSharedPreferences(model)
 
         val pref = activity?.getSharedPreferences("fescoLogin", Context.MODE_PRIVATE)
@@ -145,16 +185,19 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
         editor?.putBoolean("lmFlag", true)
         editor?.apply()
 
-        Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
-
+        // Start LMMainActivity
         activity?.let {
+            // Show success message
+            Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
+
             val intent = Intent(it, LMMainActivity::class.java)
             it.startActivity(intent)
             it.finish()
         }
     }
 
-    private fun setProfileDataToSharedPreferences(model : LMModel) {
+    // Store LM profile data in SharedPreferences
+    private fun setProfileDataToSharedPreferences(model: LMModel) {
         val lmData = context?.getSharedPreferences("lmData", Context.MODE_PRIVATE)
         val editor = lmData?.edit()
         editor?.putString("id", model.id)

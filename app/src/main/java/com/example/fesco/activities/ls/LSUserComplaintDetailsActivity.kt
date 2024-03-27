@@ -44,10 +44,6 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLsuserComplaintDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-    }
-
-    override fun onResume() {
-        super.onResume()
         init() // Initialize the activity on resume
     }
 
@@ -130,7 +126,7 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
 
                 override fun onItemClick(lmId: String?, lmName: String?) {
                     loadingDialog =
-                        LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!! // Show loading dialog
+                        LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity) // Show loading dialog
                     binding.assignToLM.setText(lmName) // Set LM name to dropdown
                     binding.assignToLMLayout.isEnabled = false // Disable dropdown if LM is assigned
 

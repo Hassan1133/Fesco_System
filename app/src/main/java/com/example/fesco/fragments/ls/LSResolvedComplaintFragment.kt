@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.LSUserComplaintAdp
 import com.example.fesco.databinding.FragmentLSResolvedComplaintBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -34,6 +35,7 @@ class LSResolvedComplaintFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLSResolvedComplaintBinding.inflate(inflater, container, false)
+        checkNetworkConnectivity()
         return binding.root
     }
 
@@ -44,9 +46,8 @@ class LSResolvedComplaintFragment : Fragment() {
         binding.lsUserResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
         lsData = requireActivity().getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getLsUserComplaintsID()
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -57,6 +58,28 @@ class LSResolvedComplaintFragment : Fragment() {
                 return true
             }
         })
+    }
+
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun search(newText: String) {
@@ -87,11 +110,6 @@ class LSResolvedComplaintFragment : Fragment() {
     private fun getHourDifferenceOfComplaints(dateString: String): Long {
         val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
         return (Calendar.getInstance().timeInMillis - date!!.time) / (1000 * 60 * 60)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        init()
     }
 
     private fun getLsUserComplaintsID() {

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.SDOLSAdp
 import com.example.fesco.databinding.FragmentSDOLSBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.LSModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -32,9 +33,9 @@ class SDOLSFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSDOLSBinding.inflate(inflater, container, false)
-        init()
+        checkNetworkConnectivity()
         return binding.root
     }
 
@@ -44,6 +45,28 @@ class SDOLSFragment : Fragment() {
         lsList = mutableListOf<LSModel>()
         binding.lsRecycler.layoutManager = LinearLayoutManager(activity)
         getSDOArrayFromSharedPreferences()
+    }
+
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun getSDOArrayFromSharedPreferences() {

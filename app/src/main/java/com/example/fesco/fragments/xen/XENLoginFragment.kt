@@ -64,7 +64,6 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
 
                 if (isConnected) {
                     if (isDataValid()) {
-                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
                         signIn(binding.email.text.toString(), binding.password.text.toString())
                     }
                 } else {
@@ -81,6 +80,7 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
 
             if (it.isSuccessful) {
+                loadingDialog = LoadingDialog.showLoadingDialog(activity)
                 checkXENExists(it.result.user!!.uid)
             }
 

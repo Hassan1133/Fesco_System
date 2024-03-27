@@ -65,7 +65,7 @@ class UserLoginFragment : Fragment(), OnClickListener {
 
                 if (isConnected) {
                     if (isDataValid()) {
-                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
+                        loadingDialog = LoadingDialog.showLoadingDialog(activity)
                         signIn()
                     }
                 } else {

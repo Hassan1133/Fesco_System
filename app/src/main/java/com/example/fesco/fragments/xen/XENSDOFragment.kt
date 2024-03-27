@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.XENSDOAdp
 import com.example.fesco.databinding.FragmentXENSDOBinding
 import com.example.fesco.main_utils.LoadingDialog
+import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.SDOModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -31,18 +32,40 @@ class XENSDOFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentXENSDOBinding.inflate(inflater, container, false)
-        init()
+        checkNetworkConnectivity()
         return binding.root
     }
 
     private fun init() {
-        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
+        loadingDialog = LoadingDialog.showLoadingDialog(activity)
         firestoreDb = Firebase.firestore
         sdoList = mutableListOf<SDOModel>()
         binding.sdoRecycler.layoutManager = LinearLayoutManager(activity)
         getSDOArrayFromSharedPreferences()
+    }
+
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun getSDOArrayFromSharedPreferences() {
@@ -75,7 +98,7 @@ class XENSDOFragment : Fragment() {
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val sdo = documentSnapshot.toObject(SDOModel::class.java)
                     sdo?.let {
-                        sdo?.let {
+                        sdo.let {
                             sdoList.add(it)
                         }
                     }

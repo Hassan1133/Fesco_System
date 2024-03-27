@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
+    <!-- Root layout -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="20dp">
+        android:paddingBottom="20dp"
+        tools:ignore="ScrollViewSize">
 
-
+        <!-- TextView for Alertify User -->
         <TextView
             android:id="@+id/txt_alertify_user"
             android:layout_width="wrap_content"
@@ -20,6 +24,7 @@
             android:textColor="@color/black"
             android:textSize="20sp" />
 
+        <!-- TextView for Detail -->
         <TextView
             android:id="@+id/txt_detail"
             android:layout_width="wrap_content"
@@ -30,9 +35,7 @@
             android:textColor="@color/hint_color"
             android:textSize="12sp" />
 
-
-        <!--        start of email field-->
-
+        <!-- Email Field Heading -->
         <TextView
             android:id="@+id/email_heading"
             android:layout_width="wrap_content"
@@ -44,6 +47,7 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
+        <!-- TextInputLayout for Email -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_layout"
             android:layout_width="match_parent"
@@ -53,10 +57,9 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
             app:hintEnabled="false"
-            app:hintTextColor="@color/hint_color"
+            app:hintTextColor="@color/hint_color">
 
-            >
-
+            <!-- TextInputEditText for Email -->
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
@@ -70,11 +73,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
-        <!--        end of email field-->
-
-        <!--        start of password field-->
-
+        <!-- Password Field Heading -->
         <TextView
             android:id="@+id/password_heading"
             android:layout_width="wrap_content"
@@ -86,6 +85,7 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
+        <!-- TextInputLayout for Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordLayout"
             android:layout_width="match_parent"
@@ -98,6 +98,7 @@
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/hint_color">
 
+            <!-- TextInputEditText for Password -->
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
@@ -110,10 +111,7 @@
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!--        end of password field-->
-
-        <!--        start of login button-->
-
+        <!-- Login Button -->
         <Button
             android:id="@+id/loginBtn"
             android:layout_width="match_parent"
@@ -127,8 +125,6 @@
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:cornerRadius="6dp" />
-
-        <!--        end of login button-->
 
     </RelativeLayout>
 </ScrollView>

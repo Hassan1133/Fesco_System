@@ -47,41 +47,59 @@ import java.util.Date
 
 class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
+    // View binding for the fragment layout
     private lateinit var binding: FragmentUserNotReslovedComplaintsBinding
 
+    // View binding for the complaint dialog layout
     private lateinit var userComplaintDialogBinding: ComplaintDialogBinding
 
+    // Loading dialog to show during network operations
     private lateinit var loadingDialog: Dialog
 
+    // Dialog for user to submit a new complaint
     private lateinit var userComplaintDialog: Dialog
 
+    // Firebase Firestore instance
     private lateinit var firestoreDb: FirebaseFirestore
 
+    // Shared preferences to store user data
     private lateinit var userData: SharedPreferences
 
+    // List to hold updated complaint data
     private lateinit var updatedComplaintList: MutableList<UserComplaintModel>
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Inflate the fragment layout
         binding = FragmentUserNotReslovedComplaintsBinding.inflate(layoutInflater, container, false)
+        // Check network connectivity
+        checkNetworkConnectivity()
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        init()
-    }
-
     private fun init() {
+        // Set click listener for the add complaint button
         binding.addComplaintBtn.setOnClickListener(this)
+
+        // Initialize Firestore instance
         firestoreDb = Firebase.firestore
+
+        // Initialize the list to hold updated complaint data
         updatedComplaintList = mutableListOf<UserComplaintModel>()
+
+        // Get user data from shared preferences
         userData =
             requireActivity().getSharedPreferences("userData", AppCompatActivity.MODE_PRIVATE)
+
+        // Set layout manager for recycler view
         binding.userComplaintsRecycler.layoutManager = LinearLayoutManager(requireActivity())
+
+        // Fetch user complaints data
         getUserComplaintsID()
 
+        // Set search functionality for the search view
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -94,9 +112,33 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
         })
     }
 
+    private fun checkNetworkConnectivity() {
+        // Check network connectivity
+        val networkManager = NetworkManager(requireActivity())
+        try {
+            val isConnected = networkManager.isNetworkAvailable()
+            if (isConnected) {
+                // Initialize the fragment
+                init()
+            } else {
+                Toast.makeText(
+                    requireActivity(), "Please connect to the internet",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            // Handle network check exception
+            Toast.makeText(
+                requireActivity(), "Network check failed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     private fun search(newText: String) {
         val searchList = mutableListOf<UserComplaintModel>()
         for (i in updatedComplaintList) {
+            // Filter complaints based on search text
             if (i.consumerID.contains(newText) || i.userName.lowercase()
                     .contains(newText.lowercase()) || i.phoneNo.contains(newText) || i.address.lowercase()
                     .contains(newText.lowercase()) || i.status.lowercase()
@@ -109,23 +151,27 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
                 searchList.add(i)
             }
         }
+        // Update recycler view with filtered list
         setDataToRecycler(searchList)
     }
 
     private fun getHoursDifferenceUpdatedText(dateTime: String): String {
+        // Calculate time difference for a complaint
         val dateTimeLong = getHourDifferenceOfComplaints(dateTime)
-
         return "$dateTimeLong hours"
     }
 
     @SuppressLint("SimpleDateFormat")
     private fun getHourDifferenceOfComplaints(dateString: String): Long {
+        // Calculate time difference in hours
         val date = SimpleDateFormat("dd MMM yyyy hh:mm a").parse(dateString)
         return (Calendar.getInstance().timeInMillis - date!!.time) / (1000 * 60 * 60)
     }
 
     private fun getUserComplaintsID() {
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        // Show loading dialog
+        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
+        // Fetch user complaints data from Firestore
         firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
@@ -133,6 +179,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                 }
                 snapShot?.let { document ->
+                    // Get complaint data from Firestore
                     getComplaintDataFromDb(
                         document.get("complaints") as? List<String> ?: emptyList()
                     )
@@ -141,12 +188,12 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
     }
 
     private fun getComplaintDataFromDb(complaintList: List<String>) {
-
         if (complaintList.isEmpty()) {
             LoadingDialog.hideLoadingDialog(loadingDialog)
             return
         }
 
+        // Fetch complaint data for each complaint ID
         firestoreDb.collection("UserComplaints").whereIn("id", complaintList)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
@@ -159,6 +206,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
                 updatedComplaintList.clear()
 
                 snapshots?.documents?.forEach { documentSnapshot ->
+                    // Convert document snapshot to UserComplaintModel object
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
                     if (complaint?.status != "Resolved") {
                         complaint?.let {
@@ -167,10 +215,11 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
                     }
                 }
 
-
-                // Update the UI with the updated complaint list
+                // Sort the updated complaint list by date
                 updatedComplaintList.sortByDescending { it.dateTime }
+                // Update UI with the updated complaint list
                 setDataToRecycler(updatedComplaintList)
+                // Hide loading dialog
                 LoadingDialog.hideLoadingDialog(loadingDialog)
             }
     }
@@ -226,7 +275,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
         userComplaintDialogBinding.submitBtn.setOnClickListener {
             if (isValid()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+                loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
                 setComplaintDataToModel()
             }
         }
@@ -260,73 +309,47 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
     }
 
     private fun submitComplaint(model: UserComplaintModel) {
-        val dbDocument = firestoreDb.collection("UserComplaints").document()
-        model.id = dbDocument.id
-        dbDocument.set(model).addOnSuccessListener {
-            retrieveUserComplaintList(model.id)
-        }.addOnFailureListener {
+        // Get references for user and LS documents
+        val userDocRef =
+            firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
+        val lsDocRef = firestoreDb.collection("LS").document(userData.getString("ls", "")!!)
+
+        // Start a Firestore transaction
+        firestoreDb.runTransaction { transaction ->
+            // Perform reads inside the transaction
+            val userDocSnapshot = transaction.get(userDocRef)
+            val lsDocSnapshot = transaction.get(lsDocRef)
+
+            // Extract user and LS complaint lists
+            val currentUserComplaints = userDocSnapshot.get("complaints") as? MutableList<String>
+                ?: mutableListOf()
+            val currentLsComplaints = lsDocSnapshot.get("complaints") as? MutableList<String>
+                ?: mutableListOf()
+
+            // Create a new complaint document
+            val complaintRef = firestoreDb.collection("UserComplaints").document()
+            model.id = complaintRef.id
+            transaction.set(complaintRef, model)
+
+            // Update user complaints list
+            currentUserComplaints.add(model.id)
+            transaction.update(userDocRef, "complaints", currentUserComplaints)
+
+            // Update LS complaints list
+            currentLsComplaints.add(model.id)
+            transaction.update(lsDocRef, "complaints", currentLsComplaints)
+
+        }.addOnSuccessListener {
+            // Retrieve FCM token and send notification (outside of the transaction)
             LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+            userComplaintDialog.dismiss()
+            getLSFCMToken(userData.getString("ls", "")!!)
+        }.addOnFailureListener { exception ->
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun retrieveUserComplaintList(id: String) {
-        firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
-            .get()
-            .addOnSuccessListener { snapShot ->
-                val currentComplaints = snapShot.get("complaints") as? List<String> ?: emptyList()
-                val updatedUserComplaints =
-                    currentComplaints.filter { it.isNotEmpty() }.toMutableList()
-                updatedUserComplaints.add(id)
-                sendComplaintIDToUser(id, updatedUserComplaints)
-            }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun sendComplaintIDToUser(id: String, list: List<String>) {
-        firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
-            .update("complaints", list)
-            .addOnSuccessListener {
-                retrieveLSComplaintList(id)
-            }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun retrieveLSComplaintList(id: String) {
-        firestoreDb.collection("LS").document(userData.getString("ls", "")!!)
-            .get()
-            .addOnSuccessListener { snapShot ->
-                val currentComplaints = snapShot.get("complaints") as? List<String> ?: emptyList()
-                val updatedLSComplaints =
-                    currentComplaints.filter { it.isNotEmpty() }.toMutableList()
-                updatedLSComplaints.add(id)
-                sendComplaintIDToLS(updatedLSComplaints)
-            }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun sendComplaintIDToLS(list: List<String>) {
-        firestoreDb.collection("LS").document(userData.getString("ls", "")!!)
-            .update("complaints", list)
-            .addOnSuccessListener {
-                getLSFCMToken(userData.getString("ls", "")!!)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                userComplaintDialog.dismiss()
-            }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(
-                    requireActivity(),
-                    it.message + " --sendComplaintIDToLS Failure",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-    }
 
     private fun getLSFCMToken(lsId: String) {
         firestoreDb.collection("LS").document(lsId).get().addOnSuccessListener {

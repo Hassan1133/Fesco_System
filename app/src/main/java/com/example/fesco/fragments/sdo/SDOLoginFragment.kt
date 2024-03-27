@@ -26,17 +26,14 @@ import com.google.gson.Gson
 
 class SDOLoginFragment : Fragment(), OnClickListener {
 
+    // Late-initialized properties
     private lateinit var binding: FragmentSdoLoginBinding
-
     private lateinit var firebaseAuth: FirebaseAuth
-
     private lateinit var firestoreDb: FirebaseFirestore
-
     private lateinit var sdoRef: String
-
     private lateinit var loadingDialog: Dialog
-
     private lateinit var sdoModel: SDOModel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,61 +48,76 @@ class SDOLoginFragment : Fragment(), OnClickListener {
         firebaseAuth = FirebaseAuth.getInstance()
         firestoreDb = Firebase.firestore
 
+        // Set OnClickListener for login button
         binding.loginBtn.setOnClickListener(this)
+
+        // Collection reference for SDO documents
         sdoRef = "SDO"
     }
 
+    // Sign in with Firebase Authentication
     private fun signIn(email: String, password: String) {
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-
-            if (it.isSuccessful) {
-                checkSDOExists(it.result.user!!.uid)
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                loadingDialog = LoadingDialog.showLoadingDialog(activity)
+                checkSDOExists(task.result.user!!.uid)
             }
-
-        }.addOnFailureListener {
+        }.addOnFailureListener { exception ->
+            // Handle sign-in failure
             LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, exception.message, Toast.LENGTH_SHORT).show()
         }
     }
 
+    // Check if the SDO exists in Firestore
     private fun checkSDOExists(userId: String) {
-        firestoreDb.collection(sdoRef).document(userId).get().addOnSuccessListener {
-
-            if (it.exists()) {
-                sdoModel = it.toObject(SDOModel::class.java)!!
+        firestoreDb.collection(sdoRef).document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Convert Firestore document to SDOModel
+                sdoModel = document.toObject(SDOModel::class.java)!!
+                // Get FCM token for SDO
                 getFCMToken(sdoModel)
-            }
-            else
-            {
+            } else {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(activity, "Account doesn't exist", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener {
+        }.addOnFailureListener { exception ->
+            // Handle Firestore query failure
             LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, exception.message, Toast.LENGTH_SHORT).show()
         }
     }
 
+    // Get FCM token for the SDO
     private fun getFCMToken(sdoModel: SDOModel) {
-        FirebaseMessaging.getInstance().getToken()
-            .addOnSuccessListener {
-                setFCMTokenToDb(it, sdoModel)
-            }.addOnFailureListener {
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                setFCMTokenToDb(token, sdoModel)
+            }.addOnFailureListener { exception ->
+                Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
             }
     }
 
+    // Update FCM token in Firestore
     private fun setFCMTokenToDb(token: String?, sdoModel: SDOModel) {
-        firestoreDb.collection("SDO").document(sdoModel.id).update("sdoFCMToken", token)
-            .addOnSuccessListener {
-                sdoModel.sdoFCMToken = token!!
-                goToSDOMainActivity(sdoModel)
-            }.addOnFailureListener{
-                Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
+        firestoreDb.runTransaction { transaction ->
+            val lmDocRef = firestoreDb.collection("SDO").document(sdoModel.id)
+            transaction.update(lmDocRef, "sdoFCMToken", token)
+
+        }.addOnSuccessListener {
+            sdoModel.sdoFCMToken = token!!
+            goToSDOMainActivity(sdoModel)
+        }.addOnFailureListener { exception ->
+            // Handle transaction failure
+            activity?.let {
+                Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
             }
+        }
     }
+
+    // Validate input data
     private fun isDataValid(): Boolean {
-        var valid: Boolean = true
+        var valid = true
         if (!Patterns.EMAIL_ADDRESS.matcher(binding.email.text.toString()).matches()) {
             binding.email.error = "Please enter valid email address"
             valid = false
@@ -116,32 +128,39 @@ class SDOLoginFragment : Fragment(), OnClickListener {
         }
         return valid
     }
+
+    // Handle button clicks
     override fun onClick(v: View) {
         when (v.id) {
-
             R.id.loginBtn -> {
-
+                // Check network connectivity
                 val networkManager = NetworkManager(requireActivity())
-
-                val isConnected = networkManager.isNetworkAvailable()
-
-                if (isConnected) {
-                    if (isDataValid()) {
-                        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
-                        signIn(binding.email.text.toString(), binding.password.text.toString())
+                try {
+                    val isConnected = networkManager.isNetworkAvailable()
+                    if (isConnected) {
+                        // Validate input data and proceed with sign-in
+                        if (isDataValid()) {
+                            signIn(binding.email.text.toString(), binding.password.text.toString())
+                        }
+                    } else {
+                        Toast.makeText(
+                            requireActivity(), "Please connect to the internet",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                } else {
+                } catch (e: Exception) {
+                    // Handle network check exception
                     Toast.makeText(
-                        requireActivity(), "Please connect to internet", Toast.LENGTH_SHORT
+                        requireActivity(), "Network check failed",
+                        Toast.LENGTH_SHORT
                     ).show()
                 }
             }
-
         }
     }
 
-    private fun goToSDOMainActivity(model : SDOModel) {
-
+    // Navigate to SDO main activity after successful login
+    private fun goToSDOMainActivity(model: SDOModel) {
         setProfileDataToSharedPreferences(model)
 
         val pref = activity?.getSharedPreferences("fescoLogin", Context.MODE_PRIVATE)
@@ -152,13 +171,14 @@ class SDOLoginFragment : Fragment(), OnClickListener {
         Toast.makeText(activity, "Logged In Successfully", Toast.LENGTH_SHORT).show()
 
         activity?.let {
-            val intent = Intent(activity, SDOMainActivity()::class.java)
+            val intent = Intent(activity, SDOMainActivity::class.java)
             startActivity(intent)
             activity?.finish()
         }
     }
 
-    private fun setProfileDataToSharedPreferences(model : SDOModel) {
+    // Store SDO profile data in SharedPreferences
+    private fun setProfileDataToSharedPreferences(model: SDOModel) {
         val sdoData = context?.getSharedPreferences("sdoData", Context.MODE_PRIVATE)
         val editor = sdoData?.edit()
         editor?.putString("id", model.id)

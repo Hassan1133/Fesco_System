@@ -106,6 +106,7 @@ class UserComplaintDetailsActivity : AppCompatActivity(), OnClickListener {
         firestoreDb.collection("UserComplaints").document(userComplaintModel.id)
             .update("feedback", feedback).addOnSuccessListener {
                 // Hide loading dialog on success
+                feedBackDialog.dismiss()
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 // Update local userComplaintModel with new feedback
                 userComplaintModel.feedback = feedback

@@ -6,6 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.lm.LMNotResolvedComplaintFragment">
 
+    <!-- SearchView for searching -->
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
@@ -23,6 +24,7 @@
         app:queryBackground="@color/transparent"
         app:queryHint="@string/search" />
 
+    <!-- RecyclerView to display unresolved complaints -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lmUnResolvedComplaintsRecycler"
         android:layout_width="match_parent"
