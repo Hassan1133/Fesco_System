@@ -13,37 +13,34 @@ import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLsprofileBinding
 import com.example.fesco.databinding.UserEditPasswordDialogBinding
 import com.example.fesco.main_utils.LoadingDialog
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
 class LSProfileActivity : AppCompatActivity(), OnClickListener {
+
+    // Late-initialized properties
     private lateinit var binding: ActivityLsprofileBinding
-
     private lateinit var firebaseUser: FirebaseUser
-
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding
-
     private lateinit var loadingDialog: Dialog
-
     private lateinit var userEditPasswordDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLsprofileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        init()
+        init() // Initialize the activity components
     }
 
     private fun init() {
-        getProfileDataFromSharedPreferences()
-        firebaseUser = FirebaseAuth.getInstance().currentUser!!
-        binding.editIcon.setOnClickListener(this)
+        getProfileDataFromSharedPreferences() // Get profile data from shared preferences
+        firebaseUser = FirebaseAuth.getInstance().currentUser ?: return // Get current user
+        binding.editIcon.setOnClickListener(this) // Set click listener for edit icon
     }
 
     private fun getProfileDataFromSharedPreferences() {
         val lsData = getSharedPreferences("lsData", MODE_PRIVATE)
+        // Set user details from SharedPreferences
         binding.name.text = lsData.getString("name", "")
         binding.email.text = lsData.getString("email", "")
         binding.city.text = lsData.getString("city", "")
@@ -51,35 +48,41 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun createPasswordDialog() {
-        userEditPasswordDialogBinding =
-            UserEditPasswordDialogBinding.inflate(LayoutInflater.from(this))
+        userEditPasswordDialogBinding = UserEditPasswordDialogBinding.inflate(LayoutInflater.from(this))
         userEditPasswordDialog = Dialog(this)
         userEditPasswordDialog.setContentView(userEditPasswordDialogBinding.root)
         userEditPasswordDialog.setCancelable(false)
         userEditPasswordDialog.show()
         userEditPasswordDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        userEditPasswordDialogBinding.updateBtn.setOnClickListener {
+        userEditPasswordDialogBinding.updateBtn.setOnClickListener { // Set click listener for update button
             if (isValidPassword()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(this)!!
+                loadingDialog = LoadingDialog.showLoadingDialog(this)!! // Show loading dialog
                 verifyUserCurrentPassword(firebaseUser.email!!, userEditPasswordDialogBinding.userCurrentPassword.text.toString())
             }
         }
 
-        userEditPasswordDialogBinding.closeBtn.setOnClickListener{
-            userEditPasswordDialog.dismiss()
+        userEditPasswordDialogBinding.closeBtn.setOnClickListener { // Set click listener for close button
+            userEditPasswordDialog.dismiss() // Dismiss password dialog
         }
     }
 
     private fun verifyUserCurrentPassword(email: String, password: String) {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task: Task<AuthResult?> ->
+            .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     updateUserPassword(userEditPasswordDialogBinding.userNewPassword.text.toString())
+                } else {
+                    // Hide loading dialog on failure
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    userEditPasswordDialogBinding.userCurrentPassword.error = "Invalid password"
+                    // Show error message
+                    Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                 }
-            }.addOnFailureListener { e ->
+            }
+            .addOnFailureListener { e -> // Handle general exceptions
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                userEditPasswordDialogBinding.userCurrentPassword.error = "password is invalid"
+                userEditPasswordDialogBinding.userCurrentPassword.error = "Invalid password"
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
     }
@@ -88,11 +91,19 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
         firebaseUser.updatePassword(newPassword)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "User Password Updated Successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Password Updated Successfully", Toast.LENGTH_SHORT).show()
+                    // Hide loading dialog on success
                     LoadingDialog.hideLoadingDialog(loadingDialog)
+                    // Dismiss password dialog
                     userEditPasswordDialog.dismiss()
+                } else {
+                    // Hide loading dialog on failure
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    // Show error message
+                    Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                 }
-            }.addOnFailureListener { e ->
+            }
+            .addOnFailureListener { e -> // Handle general exceptions
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
@@ -101,7 +112,7 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.editIcon -> {
-                createPasswordDialog()
+                createPasswordDialog() // Open password edit dialog on click
             }
         }
     }

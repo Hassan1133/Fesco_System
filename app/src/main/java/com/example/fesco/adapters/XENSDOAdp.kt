@@ -14,13 +14,14 @@ import com.example.fesco.models.SDOModel
 class XENSDOAdp(private val context: Context, private val sdoList: List<SDOModel>) :
     RecyclerView.Adapter<XENSDOAdp.ViewHolder>() {
 
+    // Inflates the layout for each item in the RecyclerView
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.xen_sdo_recycler_design, parent, false)
         return ViewHolder(view)
     }
 
-    // binds the list items to a view
+    // Binds the data to the views in each item of the RecyclerView
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val sdoModel = sdoList[position]
@@ -28,6 +29,7 @@ class XENSDOAdp(private val context: Context, private val sdoList: List<SDOModel
         holder.name.text = sdoModel.name
         holder.subDivision.text = sdoModel.subDivision
 
+        // Handle item click to navigate to SDO details activity
         holder.itemView.setOnClickListener {
             val intent = Intent(context, XENSDODetailsActivity::class.java)
             intent.putExtra("sdoModel", sdoModel)
@@ -35,14 +37,14 @@ class XENSDOAdp(private val context: Context, private val sdoList: List<SDOModel
         }
     }
 
-    // return the number of the items in the list
+    // Returns the total number of items in the RecyclerView
     override fun getItemCount(): Int {
         return sdoList.size
     }
 
-    // Holds the views for adding it to image and text
+    // ViewHolder class holds the views for each item in the RecyclerView
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.userName)
-        val subDivision: TextView = itemView.findViewById(R.id.subDivision)
+        val name: TextView = itemView.findViewById(R.id.userName) // TextView for SDO name
+        val subDivision: TextView = itemView.findViewById(R.id.subDivision) // TextView for SDO sub-division
     }
 }

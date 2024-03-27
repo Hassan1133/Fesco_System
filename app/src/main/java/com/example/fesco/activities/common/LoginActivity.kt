@@ -14,17 +14,26 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Inflate the layout
         binding = ActivityLoginBinding.inflate(layoutInflater)
+        // Initialize the activity components
         init()
+        // Set the content view to the root layout of the inflated binding
         setContentView(binding.root)
     }
 
     private fun init() {
-        val adp = ViewPagerAdp(supportFragmentManager, lifecycle)
+        // Create adapter for ViewPager
+        val adapter = ViewPagerAdp(supportFragmentManager, lifecycle)
+        // Get reference to ViewPager
         val viewPager: ViewPager2 = binding.viewPager
-        viewPager.adapter = adp
+        // Set adapter to ViewPager
+        viewPager.adapter = adapter
+        // Get reference to TabLayout
         val tabs: TabLayout = binding.tabsLayout
+        // Attach TabLayout to ViewPager
         TabLayoutMediator(tabs, viewPager) { tab, position ->
+            // Set tab text based on position
             when (position) {
                 0 -> tab.text = "USER"
                 1 -> tab.text = "XEN"

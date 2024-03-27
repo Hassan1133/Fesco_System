@@ -13,18 +13,20 @@ import com.example.fesco.fragments.xen.XENLoginFragment
 class ViewPagerAdp(fm: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fm, lifecycle) {
 
+    // Returns the total number of fragments in the ViewPager
     override fun getItemCount(): Int {
-        return 5
+        return 5 // Assuming there are 5 fragments
     }
 
+    // Creates and returns the fragment at the specified position
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> UserLoginFragment()
-            1 -> XENLoginFragment()
-            2 -> SDOLoginFragment()
-            3 -> LSLoginFragment()
-            4 -> LMLoginFragment()
-            else -> UserLoginFragment()
+            0 -> UserLoginFragment()   // Fragment for user login
+            1 -> XENLoginFragment()    // Fragment for XEN login
+            2 -> SDOLoginFragment()   // Fragment for SDO login
+            3 -> LSLoginFragment()    // Fragment for LS login
+            4 -> LMLoginFragment()    // Fragment for LM login
+            else -> UserLoginFragment() // Default: user login fragment
         }
     }
 }

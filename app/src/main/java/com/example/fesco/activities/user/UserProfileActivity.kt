@@ -21,42 +21,40 @@ import com.google.firebase.firestore.firestore
 class UserProfileActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivityUserProfileBinding
-
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding
-
     private lateinit var loadingDialog: Dialog
-
     private lateinit var userEditPasswordDialog: Dialog
-
-    private lateinit var usersRef: String
-
+    private lateinit var usersRef: String // Variable to hold the reference to the users collection
     private lateinit var userData: SharedPreferences
-
     private lateinit var firestoreDb: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUserProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        init()
     }
 
+    override fun onResume() {
+        super.onResume()
+        init() // Initialize activity components
+    }
     private fun init() {
-        getProfileDataFromSharedPreferences()
-        binding.editIcon.setOnClickListener(this)
-        firestoreDb = Firebase.firestore
-        usersRef = "Users"
+        getProfileDataFromSharedPreferences() // Retrieve user profile data from SharedPreferences
+        binding.editIcon.setOnClickListener(this) // Set click listener for the edit icon
+        firestoreDb = Firebase.firestore // Initialize Firestore database instance
+        usersRef = "Users" // Set the reference to the users collection
     }
 
     override fun onClick(v: View) {
         when (v.id) {
             R.id.editIcon -> {
-                createPasswordDialog()
+                createPasswordDialog() // Create and show the password change dialog
             }
         }
     }
 
     private fun getProfileDataFromSharedPreferences() {
+        // Retrieve user profile data from SharedPreferences and populate the UI
         userData = getSharedPreferences("userData", MODE_PRIVATE)
         binding.name.text = userData.getString("name", "")
         binding.consumerID.text = userData.getString("consumerID", "")
@@ -65,6 +63,7 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun createPasswordDialog() {
+        // Create and show the password change dialog
         userEditPasswordDialogBinding =
             UserEditPasswordDialogBinding.inflate(LayoutInflater.from(this))
         userEditPasswordDialog = Dialog(this)
@@ -74,6 +73,7 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
         userEditPasswordDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         userEditPasswordDialogBinding.updateBtn.setOnClickListener {
+            // When the update button is clicked, verify and update the password
             if (isValidPassword()) {
                 loadingDialog = LoadingDialog.showLoadingDialog(this)!!
                 verifyUserCurrentPassword(
@@ -85,26 +85,29 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
         }
 
         userEditPasswordDialogBinding.closeBtn.setOnClickListener {
+            // Close the password change dialog
             userEditPasswordDialog.dismiss()
         }
     }
 
     private fun verifyUserCurrentPassword(id: String, currentKey: String, newKey: String) {
+        // Verify the current password before updating it
         firestoreDb.collection(usersRef).document(id).get().addOnSuccessListener {
             if (it.getString("key") == currentKey) {
-                updateUserKey(id, newKey)
+                updateUserKey(id, newKey) // If current password is correct, update the password
             } else {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
                 userEditPasswordDialogBinding.userCurrentPassword.error =
-                    "Incorrect current password"
+                    "Incorrect current password" // Display error if current password is incorrect
             }
         }.addOnFailureListener {
             LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show() // Show error message if retrieval fails
         }
     }
 
     private fun updateUserKey(id: String, newKey: String) {
+        // Update the user's password in the Firestore database
         firestoreDb.collection(usersRef).document(id).update("key", newKey)
             .addOnSuccessListener {
                 LoadingDialog.hideLoadingDialog(loadingDialog)
@@ -117,6 +120,7 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun isValidPassword(): Boolean {
+        // Validate the password entered by the user
         var valid = true
 
         if (userEditPasswordDialogBinding.userCurrentPassword.text!!.length < 6) {

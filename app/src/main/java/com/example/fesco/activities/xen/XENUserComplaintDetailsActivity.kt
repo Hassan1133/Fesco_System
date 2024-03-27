@@ -30,13 +30,21 @@ class XENUserComplaintDetailsActivity : AppCompatActivity() {
     }
 
     private fun init() {
+        // Initialize loading dialog
         loadingDialog = LoadingDialog.showLoadingDialog(this@XENUserComplaintDetailsActivity)!!
+
+        // Initialize Firestore database
         firestoreDb = Firebase.firestore
+
+        // Retrieve data from intent and set to UI fields
         getDataFromIntentSetToFields()
     }
 
     private fun getDataFromIntentSetToFields() {
+        // Retrieve UserComplaintModel object from intent
         userComplaintModel = intent.getSerializableExtra("userComplaintModel") as UserComplaintModel
+
+        // Set data from UserComplaintModel to UI fields
         binding.name.text = userComplaintModel.userName
         binding.consumerID.text = userComplaintModel.consumerID
         binding.dateTime.text = userComplaintModel.dateTime
@@ -46,40 +54,67 @@ class XENUserComplaintDetailsActivity : AppCompatActivity() {
         binding.phone.text = userComplaintModel.phoneNo
         binding.feedback.text = userComplaintModel.feedback
 
+        // Retrieve SDO ID associated with the complaint
         getSDOId(userComplaintModel.consumerID)
     }
 
     private fun getSDOId(consumerID: String) {
+        // Retrieve SDO ID from Firestore based on consumer ID
         firestoreDb.collection("Users").document(consumerID).get()
-            .addOnSuccessListener {
-                getLsData(it.getString("ls"))
+            .addOnSuccessListener { document ->
+                // Get the LS ID associated with the consumer
+                val lsId = document.getString("ls")
+                if (lsId != null) {
+                    // Retrieve SDO data based on LS ID
+                    getLsData(lsId)
+                } else {
+                    // Handle the case when LS ID is null
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    Toast.makeText(this@XENUserComplaintDetailsActivity, "LS ID is null", Toast.LENGTH_SHORT).show()
+                }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
+                // Handle Firestore query failure
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(this@XENUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this@XENUserComplaintDetailsActivity, exception.message, Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun getLsData(lsId: String?) {
-        firestoreDb.collection("LS").document(lsId!!).get()
-            .addOnSuccessListener {
-                getSDOData(it.getString("sdo")!!)
-            }.addOnFailureListener {
+    private fun getLsData(lsId: String) {
+        // Retrieve SDO ID from Firestore based on LS ID
+        firestoreDb.collection("LS").document(lsId).get()
+            .addOnSuccessListener { document ->
+                // Get the SDO ID associated with the LS
+                val sdoId = document.getString("sdo")
+                if (sdoId != null) {
+                    // Retrieve SDO data based on SDO ID
+                    getSDOData(sdoId)
+                } else {
+                    // Handle the case when SDO ID is null
+                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    Toast.makeText(this@XENUserComplaintDetailsActivity, "SDO ID is null", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle Firestore query failure
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(this@XENUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this@XENUserComplaintDetailsActivity, exception.message, Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun getSDOData(sdoId: String) {
-        firestoreDb.collection("SDO").document(sdoId).get().addOnSuccessListener {
-            binding.sdo.text = it.getString("name")
-            LoadingDialog.hideLoadingDialog(loadingDialog)
-        }.addOnFailureListener {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(this@XENUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
-                .show()
-        }
+        // Retrieve SDO data from Firestore based on SDO ID
+        firestoreDb.collection("SDO").document(sdoId).get()
+            .addOnSuccessListener { document ->
+                // Set SDO name to UI field
+                binding.sdo.text = document.getString("name")
+                // Hide loading dialog after data retrieval
+                LoadingDialog.hideLoadingDialog(loadingDialog)
+            }
+            .addOnFailureListener { exception ->
+                // Handle Firestore query failure
+                LoadingDialog.hideLoadingDialog(loadingDialog)
+                Toast.makeText(this@XENUserComplaintDetailsActivity, exception.message, Toast.LENGTH_SHORT).show()
+            }
     }
 }

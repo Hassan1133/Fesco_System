@@ -20,50 +20,46 @@ import com.google.firebase.firestore.firestore
 class UserSignUpActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivityUserSignUpBinding
+    private lateinit var usersRef: String // Variable to hold the reference to the users collection
+    private lateinit var db: FirebaseFirestore // Firestore instance
+    private lateinit var loadingDialog: Dialog // Dialog for loading indicator
 
-    private lateinit var usersRef: String
-
-    // Initialize firestore
-    private lateinit var db : FirebaseFirestore
-
-    private lateinit var loadingDialog : Dialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUserSignUpBinding.inflate(layoutInflater)
-        init()
         setContentView(binding.root)
+        init() // Initialize activity components
     }
 
     private fun init() {
-        binding.signInTxt.setOnClickListener(this)
-        binding.signUpBtn.setOnClickListener(this)
-        usersRef = "Users"
-        // Initialize firestore
-        db = Firebase.firestore
+        binding.signInTxt.setOnClickListener(this) // Set click listener for sign-in text
+        binding.signUpBtn.setOnClickListener(this) // Set click listener for sign-up button
+        usersRef = "Users" // Set the reference to the users collection
+        db = Firebase.firestore // Initialize Firestore database instance
     }
 
     override fun onClick(v: View) {
         when (v.id) {
             R.id.signInTxt -> {
+                // Navigate to login activity when sign-in text is clicked
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
                 finish()
             }
 
             R.id.signUpBtn -> {
-
+                // Check network connection before sign-up
                 val networkManager = NetworkManager(this@UserSignUpActivity)
-
                 val isConnected = networkManager.isNetworkAvailable()
-
                 if (isConnected) {
+                    // Validate user input data before sign-up
                     if (isDataValid()) {
                         loadingDialog = LoadingDialog.showLoadingDialog(this)!!
-                        isConsumerExists()
+                        isConsumerExists() // Check if consumer ID exists in the database
                     }
                 } else {
                     Toast.makeText(
-                        this@UserSignUpActivity, "Please connect to internet", Toast.LENGTH_SHORT
+                        this@UserSignUpActivity, "Please connect to the internet", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -71,40 +67,48 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun isConsumerExists() {
+        // Check if the consumer ID exists in the database
         db.collection(usersRef).document(binding.consumerNo.text.toString()).get()
-            .addOnSuccessListener {
-                if (it.exists() && !it.contains("consumerID") && it.contains("ls") && it.contains("sdo") && it.contains("xen")) {
-                    signup(it.getString("ls")!!, it.getString("sdo")!!, it.getString("xen")!!)
+            .addOnSuccessListener { document ->
+                if (document.exists() && document.contains("ls") && document.contains("sdo") && document.contains("xen")) {
+                    // If consumer ID exists and contains required fields, proceed with sign-up
+                    signup(document.getString("ls")!!, document.getString("sdo")!!, document.getString("xen")!!)
                 } else {
+                    // If consumer ID is invalid or incomplete, show error message
                     LoadingDialog.hideLoadingDialog(loadingDialog)
                     Toast.makeText(this, "Invalid consumer ID", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
+                // If an error occurs while fetching data from Firestore, show error message
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun signup(ls: String, sdo: String, xen: String) {
-        val user = UserModel()
-        user.consumerID = binding.consumerNo.text.toString()
-        user.name = binding.name.text.toString()
-        user.phoneNo = binding.phoneNo.text.toString()
-        user.address = binding.address.text.toString()
-        user.ls = ls
-        user.key = binding.password.text.toString()
+        // Perform user sign-up by adding user data to Firestore
+        val user = UserModel().apply {
+            consumerID = binding.consumerNo.text.toString()
+            name = binding.name.text.toString()
+            phoneNo = binding.phoneNo.text.toString()
+            address = binding.address.text.toString()
+            this.ls = ls
+            key = binding.password.text.toString()
+        }
         db.collection(usersRef).document(binding.consumerNo.text.toString()).set(user)
             .addOnSuccessListener {
-                goToLoginActivity()
+                goToLoginActivity() // Navigate to login activity after successful sign-up
             }
-            .addOnFailureListener{
+            .addOnFailureListener { e ->
+                // If sign-up fails, show error message
                 LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun goToLoginActivity(){
+    private fun goToLoginActivity() {
+        // Navigate to login activity after successful sign-up
         LoadingDialog.hideLoadingDialog(loadingDialog)
         Toast.makeText(this, "Signed Up Successfully", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, LoginActivity::class.java)
@@ -113,25 +117,26 @@ class UserSignUpActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun isDataValid(): Boolean {
+        // Validate user input data
         var valid = true
         if (binding.consumerNo.text.isNullOrEmpty() || binding.consumerNo.text!!.length < 10) {
-            binding.consumerNo.error = "Please enter valid consumer number"
+            binding.consumerNo.error = "Please enter a valid consumer number"
             valid = false
         }
         if (binding.name.text.isNullOrEmpty()) {
-            binding.name.error = "Please enter valid name"
+            binding.name.error = "Please enter a valid name"
             valid = false
         }
         if (binding.phoneNo.text.isNullOrEmpty()) {
-            binding.phoneNo.error = "Please enter valid phone number"
+            binding.phoneNo.error = "Please enter a valid phone number"
             valid = false
         }
         if (binding.address.text.isNullOrEmpty()) {
-            binding.address.error = "Please enter valid address"
+            binding.address.error = "Please enter a valid address"
             valid = false
         }
         if (binding.password.text.isNullOrEmpty() || binding.password.text!!.length < 6) {
-            binding.password.error = "Please enter valid password"
+            binding.password.error = "Please enter a valid password (minimum 6 characters)"
             valid = false
         }
         return valid

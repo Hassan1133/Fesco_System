@@ -14,6 +14,7 @@ import com.example.fesco.models.LMModel
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -32,14 +33,11 @@ import java.io.IOException
 
 class LSUserComplaintDetailsActivity : AppCompatActivity() {
 
+    // lateinit properties to be initialized later
     private lateinit var binding: ActivityLsuserComplaintDetailsBinding
-
     private lateinit var userComplaintModel: UserComplaintModel
-
     private lateinit var loadingDialog: Dialog
-
     private lateinit var firestoreDb: FirebaseFirestore
-
     private lateinit var lmList: List<LMModel>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,17 +48,19 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        init()
+        init() // Initialize the activity on resume
     }
 
     private fun init() {
-        loadingDialog = LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!!
-        firestoreDb = Firebase.firestore
-        getDataFromIntentSetToFields()
+        loadingDialog =
+            LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!! // Show loading dialog
+        firestoreDb = Firebase.firestore // Initialize Firestore instance
+        getDataFromIntentSetToFields() // Get complaint details from intent
     }
 
     private fun getDataFromIntentSetToFields() {
         userComplaintModel = intent.getSerializableExtra("userComplaintModel") as UserComplaintModel
+        // Set complaint details to UI elements
         binding.name.text = userComplaintModel.userName
         binding.consumerID.text = userComplaintModel.consumerID
         binding.dateTime.text = userComplaintModel.dateTime
@@ -70,104 +70,135 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
         binding.phone.text = userComplaintModel.phoneNo
         binding.feedback.text = userComplaintModel.feedback
 
+        // Check if LM details are available in the model object
         if (userComplaintModel.lm.isEmpty()) {
-            getLMArrayFromSharedPreferences()
+            getLMArrayFromSharedPreferences() // Get LM list from shared preferences
         } else {
-            getLMNameSetToDropDown(userComplaintModel.lm)
+            getLMNameSetToDropDown(userComplaintModel.lm) // Get LM name from model object
         }
     }
 
     private fun getLMNameSetToDropDown(lm: String) {
-        firestoreDb.collection("LM").document(lm).get().addOnSuccessListener {
-            val lmName = it.get("name") as? String
-            binding.assignToLM.setText(lmName)
-            binding.assignToLMLayout.isEnabled = false
-            LoadingDialog.hideLoadingDialog(loadingDialog)
-        }.addOnFailureListener {
-            Toast.makeText(this@LSUserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
-                .show()
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+        // Fetch LM details from Firestore based on ID
+        firestoreDb.collection("LM").document(lm).get().addOnSuccessListener { documentSnapshot ->
+            val lmName = documentSnapshot.get("name") as? String
+            binding.assignToLM.setText(lmName) // Set LM name to dropdown
+            binding.assignToLMLayout.isEnabled = false // Disable dropdown if LM is assigned
+            LoadingDialog.hideLoadingDialog(loadingDialog) // Hide loading dialog
+        }.addOnFailureListener { e ->
+            Toast.makeText(this@LSUserComplaintDetailsActivity, e.message, Toast.LENGTH_SHORT)
+                .show() // Show error message on failure
+            LoadingDialog.hideLoadingDialog(loadingDialog) // Hide loading dialog
         }
     }
 
     private fun getLMArrayFromSharedPreferences() {
-        val lmArray =
-            getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)?.getString("lm", null)
-                ?.let { Gson().fromJson(it, Array<String>::class.java) }
+        val lmArrayString =
+            getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)?.getString(
+                "lm", null
+            ) // Get LM data as JSON string
+        val lmArray = lmArrayString?.let {
+            Gson().fromJson(
+                it, Array<String>::class.java
+            )
+        } // Convert JSON to array
 
-        lmArray?.let { getLMDataFromDb(it) }
+        // Check if LM array is retrieved successfully
+        lmArray?.let { getLMDataFromDb(it) } // Get LM data from Firestore using array
     }
 
     private fun getLMDataFromDb(lmArray: Array<String>) {
-        lifecycleScope.launch {
-            lmList = lmArray.mapNotNull { lmID ->
+        lifecycleScope.launch { // Use coroutine for asynchronous operations
+            lmList = lmArray.mapNotNull { lmID -> // Map LM IDs to LM objects
                 try {
                     firestoreDb.collection("LM").document(lmID).get().await()
                         .toObject(LMModel::class.java)
                 } catch (e: Exception) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    LoadingDialog.hideLoadingDialog(loadingDialog) // Hide loading dialog on error
                     null
                 }
             }
-            getLMNameFromLmList(lmList)
+            getLMNameFromLmList(lmList) // Get LM names from retrieved data
         }
     }
-
     private fun getLMNameFromLmList(list: List<LMModel>) {
 
-        val adapter = LMDropDownAdp(
+        val adapter = LMDropDownAdp( // Create adapter for LM dropdown
             this@LSUserComplaintDetailsActivity,
             list,
-            object : OnDropDownItemClickListener {
+            object : OnDropDownItemClickListener { // Set listener for dropdown item click
 
                 override fun onItemClick(lmId: String?, lmName: String?) {
                     loadingDialog =
-                        LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!!
-                    binding.assignToLM.setText(lmName)
-                    binding.assignToLMLayout.isEnabled = false
-                    retrieveLMComplaintList(lmId!!)
+                        LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!! // Show loading dialog
+                    binding.assignToLM.setText(lmName) // Set LM name to dropdown
+                    binding.assignToLMLayout.isEnabled = false // Disable dropdown if LM is assigned
+
+                    lmId?.let { // Check for null before using lmId
+                        retrieveLMComplaintList(it)
+                    }
                 }
             })
 
-        binding.assignToLM.setAdapter(adapter)
+        binding.assignToLM.setAdapter(adapter) // Set adapter to dropdown
 
+        // Hide loading dialog after adapter is set,
+        // assuming selection might happen without network issues
         LoadingDialog.hideLoadingDialog(loadingDialog)
     }
 
     private fun retrieveLMComplaintList(lmId: String) {
-        firestoreDb.collection("LM").document(lmId).get().addOnSuccessListener { snapShot ->
-            val currentComplaints = snapShot.get("complaints") as? List<String> ?: emptyList()
+        val complaintRef = firestoreDb.collection("UserComplaints").document(userComplaintModel.id)
+        val lmRef = firestoreDb.collection("LM").document(lmId)
+
+        firestoreDb.runTransaction { transaction ->
+            val currentComplaints =
+                transaction.get(lmRef).data?.get("complaints") as? List<String> ?: emptyList()
             val updatedComplaints = currentComplaints.filter { it.isNotEmpty() }.toMutableList()
             updatedComplaints.add(userComplaintModel.id)
-            sendComplaintIDToLM(updatedComplaints, lmId)
-        }.addOnFailureListener {
+
+            // Update LM complaints list within the transaction
+            transaction.update(lmRef, "complaints", updatedComplaints)
+
+            // Update complaint status within the transaction
+            transaction.update(complaintRef, "status", "In Process", "lm", lmId)
+
+            return@runTransaction Unit // Indicate successful transaction
+        }.addOnSuccessListener {
+            getLSFCMToken(lmId)
             LoadingDialog.hideLoadingDialog(loadingDialog)
-            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+            binding.status.text = "In Process"
+        }.addOnFailureListener { exception ->
+            LoadingDialog.hideLoadingDialog(loadingDialog)
+            // Handle potential transaction errors
+            if (exception is FirebaseFirestoreException) {
+                when (exception.code) {
+                    FirebaseFirestoreException.Code.ABORTED -> {
+                        Toast.makeText(
+                            this@LSUserComplaintDetailsActivity,
+                            "Transaction aborted.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    FirebaseFirestoreException.Code.FAILED_PRECONDITION -> {
+                        Toast.makeText(
+                            this@LSUserComplaintDetailsActivity,
+                            "Complaint or LM data might have changed. Please try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    else -> {
+                        Toast.makeText(this, exception.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                Toast.makeText(this, exception.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun sendComplaintIDToLM(list: List<String>, lmId: String) {
-        firestoreDb.collection("LM").document(lmId).update("complaints", list)
-            .addOnSuccessListener {
-                updateComplaintStatus(lmId)
-            }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun updateComplaintStatus(lmId: String) {
-        firestoreDb.collection("UserComplaints").document(userComplaintModel.id)
-            .update("status", "In Process", "lm", lmId).addOnSuccessListener {
-                getLSFCMToken(lmId)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                binding.status.text = "In Process"
-
-            }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            }
-    }
 
     private fun getLSFCMToken(lmId: String) {
         firestoreDb.collection("LM").document(lmId).get().addOnSuccessListener {
