@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Fesco"
         tools:targetApi="33">
+        <activity
+            android:name=".activities.ls.LSLMAnalyticsActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.xen.XENUserComplaintDetailsActivity"
             android:configChanges="orientation"
@@ -128,7 +131,7 @@
         </activity>
 
         <service
-            android:name="com.example.fesco.services.FCMNotificationService"
+            android:name=".services.FCMNotificationService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

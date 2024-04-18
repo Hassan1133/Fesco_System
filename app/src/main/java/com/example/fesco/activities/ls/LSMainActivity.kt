@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.activities.common.LoginActivity
 import com.example.fesco.databinding.ActivityLsmainBinding
+import com.example.fesco.fragments.ls.LSAnalyticsFragment
 import com.example.fesco.fragments.ls.LSLMFragment
 import com.example.fesco.fragments.ls.LSNotResolvedComplaintFragment
 import com.example.fesco.fragments.ls.LSResolvedComplaintFragment
@@ -144,8 +145,12 @@ class LSMainActivity : AppCompatActivity() , View.OnClickListener {
                     return@OnItemSelectedListener true
                 }
 
+                R.id.analytics -> {
+                    loadFragment(LSAnalyticsFragment())
+                    return@OnItemSelectedListener true
+                }
+
                 else -> {
-                    // Handle unexpected item selection (optional)
                     return@OnItemSelectedListener false
                 }
             }

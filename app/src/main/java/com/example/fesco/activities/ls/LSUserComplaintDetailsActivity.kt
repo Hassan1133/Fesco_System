@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.fesco.adapters.LMDropDownAdp
 import com.example.fesco.databinding.ActivityLsuserComplaintDetailsBinding
-import com.example.fesco.interfaces.OnDropDownItemClickListener
 import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.models.LMModel
 import com.example.fesco.models.UserComplaintModel
@@ -48,6 +47,7 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
     }
 
     private fun init() {
+        lmList = mutableListOf()
         loadingDialog =
             LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity)!! // Show loading dialog
         firestoreDb = Firebase.firestore // Initialize Firestore instance
@@ -121,22 +121,21 @@ class LSUserComplaintDetailsActivity : AppCompatActivity() {
 
         val adapter = LMDropDownAdp( // Create adapter for LM dropdown
             this@LSUserComplaintDetailsActivity,
-            list,
-            object : OnDropDownItemClickListener { // Set listener for dropdown item click
-
-                override fun onItemClick(lmId: String?, lmName: String?) {
-                    loadingDialog =
-                        LoadingDialog.showLoadingDialog(this@LSUserComplaintDetailsActivity) // Show loading dialog
-                    binding.assignToLM.setText(lmName) // Set LM name to dropdown
-                    binding.assignToLMLayout.isEnabled = false // Disable dropdown if LM is assigned
-
-                    lmId?.let { // Check for null before using lmId
-                        retrieveLMComplaintList(it)
-                    }
-                }
-            })
+            list
+        )
 
         binding.assignToLM.setAdapter(adapter) // Set adapter to dropdown
+
+        binding.assignToLM.setOnItemClickListener { _, _, position, _ ->
+            val lmModel = adapter.getItem(position)
+            lmModel?.let {
+                binding.assignToLM.setText(it.name)
+                binding.assignToLMLayout.isEnabled = false // Disable dropdown if LM is assigned
+
+                retrieveLMComplaintList(it.id)
+
+            }
+        }
 
         // Hide loading dialog after adapter is set,
         // assuming selection might happen without network issues

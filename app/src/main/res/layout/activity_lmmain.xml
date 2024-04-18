@@ -73,7 +73,8 @@
                 app:fabCustomSize="30dp"
                 app:maxImageSize="17dp"
                 app:srcCompat="@drawable/logout"
-                app:tint="@color/app_color" />
+                app:tint="@color/app_color"
+                tools:ignore="ContentDescription" />
         </RelativeLayout>
 
     <FrameLayout

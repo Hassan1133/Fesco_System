@@ -133,10 +133,4 @@ class LMProfileActivity : AppCompatActivity(), OnClickListener {
         return valid
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // Dismiss loading dialog and password dialog when activity is destroyed
-        LoadingDialog.hideLoadingDialog(loadingDialog)
-        userEditPasswordDialog.dismiss()
-    }
 }
