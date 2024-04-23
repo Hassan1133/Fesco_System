@@ -16,8 +16,20 @@
         android:theme="@style/Theme.Fesco"
         tools:targetApi="33">
         <activity
+            android:name=".activities.xen.XENSDOAnalyticsActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:screenOrientation="landscape"  />
+        <activity
+            android:name=".activities.sdo.SDOLSAnalyticsActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity
             android:name=".activities.ls.LSLMAnalyticsActivity"
-            android:exported="false" />
+            android:configChanges="orientation"
+            android:exported="false"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activities.xen.XENUserComplaintDetailsActivity"
             android:configChanges="orientation"

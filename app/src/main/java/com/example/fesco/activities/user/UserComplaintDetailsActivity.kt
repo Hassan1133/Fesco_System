@@ -22,7 +22,6 @@ class UserComplaintDetailsActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivityUserComplaintDetailsBinding
     private lateinit var userComplaintModel: UserComplaintModel
-    private lateinit var loadingDialog: Dialog
     private lateinit var feedBackDialog: Dialog
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var complaintFeedbackDialogBinding: ComplaintFeedbackDialogBinding
@@ -90,7 +89,7 @@ class UserComplaintDetailsActivity : AppCompatActivity(), OnClickListener {
         // Set feedback submission button click listener
         complaintFeedbackDialogBinding.complaintFeedbackLayout.setEndIconOnClickListener {
             if (!complaintFeedbackDialogBinding.complaintFeedback.text.isNullOrEmpty()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(this@UserComplaintDetailsActivity)!!
+                complaintFeedbackDialogBinding.dialogProgressbar.visibility = View.VISIBLE
                 // Send feedback to Firestore database
                 sendFeedbackToDb(complaintFeedbackDialogBinding.complaintFeedback.text.toString())
             } else {
@@ -106,8 +105,8 @@ class UserComplaintDetailsActivity : AppCompatActivity(), OnClickListener {
         firestoreDb.collection("UserComplaints").document(userComplaintModel.id)
             .update("feedback", feedback).addOnSuccessListener {
                 // Hide loading dialog on success
+                complaintFeedbackDialogBinding.dialogProgressbar.visibility = View.GONE
                 feedBackDialog.dismiss()
-                LoadingDialog.hideLoadingDialog(loadingDialog)
                 // Update local userComplaintModel with new feedback
                 userComplaintModel.feedback = feedback
                 // Show success message
@@ -116,6 +115,7 @@ class UserComplaintDetailsActivity : AppCompatActivity(), OnClickListener {
                 ).show()
             }.addOnFailureListener {
                 // Show error message on failure
+                complaintFeedbackDialogBinding.dialogProgressbar.visibility = View.GONE
                 Toast.makeText(this@UserComplaintDetailsActivity, it.message, Toast.LENGTH_SHORT)
                     .show()
             }

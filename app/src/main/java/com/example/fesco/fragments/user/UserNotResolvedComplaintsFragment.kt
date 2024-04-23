@@ -8,7 +8,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.View.OnClickListener
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -52,9 +54,6 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
     // View binding for the complaint dialog layout
     private lateinit var userComplaintDialogBinding: ComplaintDialogBinding
-
-    // Loading dialog to show during network operations
-    private lateinit var loadingDialog: Dialog
 
     // Dialog for user to submit a new complaint
     private lateinit var userComplaintDialog: Dialog
@@ -170,12 +169,12 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
     private fun getUserComplaintsID() {
         // Show loading dialog
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
+        binding.progressbar.visibility = VISIBLE
         // Fetch user complaints data from Firestore
         firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                 }
                 snapShot?.let { document ->
@@ -189,7 +188,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
     private fun getComplaintDataFromDb(complaintList: List<String>) {
         if (complaintList.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = GONE
             return
         }
 
@@ -198,7 +197,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -220,7 +219,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
                 // Update UI with the updated complaint list
                 setDataToRecycler(updatedComplaintList)
                 // Hide loading dialog
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = GONE
             }
     }
 
@@ -230,7 +229,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
             return
         }
         binding.userComplaintsRecycler.adapter = UserComplaintAdp(requireActivity(), list)
-        LoadingDialog.hideLoadingDialog(loadingDialog)
+        binding.progressbar.visibility = GONE
     }
 
 
@@ -275,7 +274,7 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
         userComplaintDialogBinding.submitBtn.setOnClickListener {
             if (isValid()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
+                userComplaintDialogBinding.dialogProgressbar.visibility = VISIBLE
                 setComplaintDataToModel()
             }
         }
@@ -341,11 +340,11 @@ class UserNotResolvedComplaintsFragment : Fragment(), OnClickListener {
 
         }.addOnSuccessListener {
             // Retrieve FCM token and send notification (outside of the transaction)
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            userComplaintDialogBinding.dialogProgressbar.visibility = GONE
             userComplaintDialog.dismiss()
             getLSFCMToken(userData.getString("ls", "")!!)
         }.addOnFailureListener { exception ->
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            userComplaintDialogBinding.dialogProgressbar.visibility = GONE
             Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
         }
     }

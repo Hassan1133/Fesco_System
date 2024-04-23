@@ -57,9 +57,11 @@ class SDOLoginFragment : Fragment(), OnClickListener {
 
     // Sign in with Firebase Authentication
     private fun signIn(email: String, password: String) {
+
+        loadingDialog = LoadingDialog.showLoadingDialog(activity)
+
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                loadingDialog = LoadingDialog.showLoadingDialog(activity)
                 checkSDOExists(task.result.user!!.uid)
             }
         }.addOnFailureListener { exception ->

@@ -22,7 +22,6 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
     private lateinit var binding: ActivityLsprofileBinding
     private lateinit var firebaseUser: FirebaseUser
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var userEditPasswordDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +56,7 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
 
         userEditPasswordDialogBinding.updateBtn.setOnClickListener { // Set click listener for update button
             if (isValidPassword()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(this)!! // Show loading dialog
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.VISIBLE
                 verifyUserCurrentPassword(firebaseUser.email!!, userEditPasswordDialogBinding.userCurrentPassword.text.toString())
             }
         }
@@ -74,14 +73,14 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
                     updateUserPassword(userEditPasswordDialogBinding.userNewPassword.text.toString())
                 } else {
                     // Hide loading dialog on failure
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                     userEditPasswordDialogBinding.userCurrentPassword.error = "Invalid password"
                     // Show error message
                     Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { e -> // Handle general exceptions
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 userEditPasswordDialogBinding.userCurrentPassword.error = "Invalid password"
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
@@ -93,18 +92,18 @@ class LSProfileActivity : AppCompatActivity(), OnClickListener {
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Password Updated Successfully", Toast.LENGTH_SHORT).show()
                     // Hide loading dialog on success
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                     // Dismiss password dialog
                     userEditPasswordDialog.dismiss()
                 } else {
                     // Hide loading dialog on failure
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                     // Show error message
                     Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { e -> // Handle general exceptions
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
     }

@@ -1,7 +1,6 @@
 package com.example.fesco.fragments.user
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.UserComplaintAdp
 import com.example.fesco.databinding.FragmentUserResolvedComplaintsBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.Firebase
@@ -26,8 +24,6 @@ import java.util.Calendar
 class UserResolvedComplaintsFragment : Fragment() {
 
     private lateinit var binding: FragmentUserResolvedComplaintsBinding
-
-    private lateinit var loadingDialog: Dialog
 
     private lateinit var firestoreDb: FirebaseFirestore
 
@@ -51,7 +47,6 @@ class UserResolvedComplaintsFragment : Fragment() {
         userData =
             requireActivity().getSharedPreferences("userData", AppCompatActivity.MODE_PRIVATE)
         binding.userSolvedComplaintsRecycler.layoutManager = LinearLayoutManager(requireActivity())
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getUserComplaintsID()
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -118,11 +113,11 @@ class UserResolvedComplaintsFragment : Fragment() {
     }
 
     private fun getUserComplaintsID() {
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())!!
+        binding.progressbar.visibility = View.VISIBLE
         firestoreDb.collection("Users").document(userData.getString("consumerID", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                 }
                 snapShot?.let { document ->
@@ -136,7 +131,7 @@ class UserResolvedComplaintsFragment : Fragment() {
     private fun getComplaintDataFromDb(complaintList: List<String>) {
 
         if (complaintList.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = View.GONE
             return
         }
 
@@ -144,7 +139,7 @@ class UserResolvedComplaintsFragment : Fragment() {
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
@@ -155,7 +150,7 @@ class UserResolvedComplaintsFragment : Fragment() {
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
                     if (complaint?.status == "Resolved") {
-                        complaint?.let {
+                        complaint.let {
                             updatedComplaintList.add(it)
                         }
                     }
@@ -164,7 +159,7 @@ class UserResolvedComplaintsFragment : Fragment() {
                 updatedComplaintList.sortByDescending { it.dateTime }
                 // Update the UI with the updated complaint list
                 setDataToRecycler(updatedComplaintList)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = View.GONE
             }
     }
 
@@ -174,6 +169,6 @@ class UserResolvedComplaintsFragment : Fragment() {
             return
         }
         binding.userSolvedComplaintsRecycler.adapter = UserComplaintAdp(requireActivity(), list)
-        LoadingDialog.hideLoadingDialog(loadingDialog)
+        binding.progressbar.visibility = View.GONE
     }
 }

@@ -6,17 +6,19 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.View.OnClickListener
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivitySdoprofileBinding
 import com.example.fesco.databinding.UserEditPasswordDialogBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+
 class SDOProfileActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivitySdoprofileBinding // Binding for the activity layout
@@ -24,8 +26,6 @@ class SDOProfileActivity : AppCompatActivity(), OnClickListener {
     private lateinit var firebaseUser: FirebaseUser // Firebase user object to manage user authentication
 
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding // Binding for the password edit dialog
-
-    private lateinit var loadingDialog: Dialog // Dialog to show loading indicator during password update
 
     private lateinit var userEditPasswordDialog: Dialog // Dialog for user password editing
 
@@ -61,7 +61,7 @@ class SDOProfileActivity : AppCompatActivity(), OnClickListener {
 
         userEditPasswordDialogBinding.updateBtn.setOnClickListener {
             if (isValidPassword()) { // Check if the entered passwords are valid
-                loadingDialog = LoadingDialog.showLoadingDialog(this)!! // Show loading dialog
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = VISIBLE
                 verifyUserCurrentPassword(firebaseUser.email!!, userEditPasswordDialogBinding.userCurrentPassword.text.toString()) // Verify user's current password
             }
         }
@@ -78,7 +78,7 @@ class SDOProfileActivity : AppCompatActivity(), OnClickListener {
                     updateUserPassword(userEditPasswordDialogBinding.userNewPassword.text.toString()) // Update user password if current password is verified
                 }
             }.addOnFailureListener { e ->
-                LoadingDialog.hideLoadingDialog(loadingDialog) // Hide loading dialog on failure
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = GONE
                 userEditPasswordDialogBinding.userCurrentPassword.error = "password is invalid" // Set error message for current password field
                 Toast.makeText(this,"${e.message} --verifyUserCurrentPassword", Toast.LENGTH_SHORT).show() // Show error message
             }
@@ -89,11 +89,11 @@ class SDOProfileActivity : AppCompatActivity(), OnClickListener {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "User Password Updated Successfully", Toast.LENGTH_SHORT).show() // Show success message
-                    LoadingDialog.hideLoadingDialog(loadingDialog) // Hide loading dialog on success
+                    userEditPasswordDialogBinding.dialogProgressbar.visibility = GONE
                     userEditPasswordDialog.dismiss() // Dismiss the password edit dialog
                 }
             }.addOnFailureListener { e ->
-                LoadingDialog.hideLoadingDialog(loadingDialog) // Hide loading dialog on failure
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = GONE
                 Toast.makeText(this,"${e.message} --updateUserPassword", Toast.LENGTH_SHORT).show() // Show error message
             }
     }

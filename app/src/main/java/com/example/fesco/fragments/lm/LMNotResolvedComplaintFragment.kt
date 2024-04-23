@@ -1,7 +1,6 @@
 package com.example.fesco.fragments.lm
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.LMUserComplaintAdp
 import com.example.fesco.databinding.FragmentLMNotResolvedComplaintBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,8 +22,6 @@ import java.util.Calendar
 class LMNotResolvedComplaintFragment : Fragment() {
 
     private lateinit var binding: FragmentLMNotResolvedComplaintBinding
-
-    private lateinit var loadingDialog: Dialog
 
     private lateinit var firestoreDb: FirebaseFirestore
 
@@ -52,7 +48,6 @@ class LMNotResolvedComplaintFragment : Fragment() {
             LinearLayoutManager(requireActivity())
         updatedComplaintList = mutableListOf<UserComplaintModel>()
         lmData = requireActivity().getSharedPreferences("lmData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         // Fetch LM user complaints from Firestore
         getLMUserComplaintsID()
         // Setup search functionality
@@ -126,11 +121,14 @@ class LMNotResolvedComplaintFragment : Fragment() {
 
     // Fetch LM user complaints from Firestore
     private fun getLMUserComplaintsID() {
+
+        binding.progressbar.visibility = View.VISIBLE
+
         firestoreDb.collection("LM").document(lmData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
                     // Handle Firestore query exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -140,7 +138,7 @@ class LMNotResolvedComplaintFragment : Fragment() {
                         // Fetch complaint details from Firestore
                         getLMUserComplaintDataFromDb(it)
                     } ?: run {
-                        LoadingDialog.hideLoadingDialog(loadingDialog)
+                        binding.progressbar.visibility = View.GONE
                     }
                 }
             }
@@ -149,14 +147,14 @@ class LMNotResolvedComplaintFragment : Fragment() {
     // Fetch details of LM user complaints from Firestore
     private fun getLMUserComplaintDataFromDb(complaintList: List<String>) {
         if (complaintList.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = View.GONE
             return
         }
         firestoreDb.collection("UserComplaints").whereIn("id", complaintList)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle Firestore query exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
@@ -175,7 +173,7 @@ class LMNotResolvedComplaintFragment : Fragment() {
                 updatedComplaintList.sortByDescending { it.dateTime }
                 // Update RecyclerView with complaint data
                 setDataToRecycler(updatedComplaintList)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = View.GONE
             }
     }
 

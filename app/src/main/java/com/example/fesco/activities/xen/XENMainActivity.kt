@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.activities.common.LoginActivity
 import com.example.fesco.databinding.ActivityXenmainBinding
+import com.example.fesco.fragments.xen.XENAnalyticsFragment
 import com.example.fesco.fragments.xen.XENNotResolvedComplaintFragment
 import com.example.fesco.fragments.xen.XENResolvedComplaintFragment
 import com.example.fesco.fragments.xen.XENSDOFragment
@@ -132,6 +133,11 @@ class XENMainActivity : AppCompatActivity(), OnClickListener {
                 }
                 R.id.sdo -> {
                     loadFragment(XENSDOFragment()) // Load SDO fragment
+                    return@OnItemSelectedListener true
+                }
+
+                R.id.analytics -> {
+                    loadFragment(XENAnalyticsFragment()) // Load SDO fragment
                     return@OnItemSelectedListener true
                 }
             }

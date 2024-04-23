@@ -10,6 +10,14 @@
         <item>In Process</item>
         <item>Resolved</item>
     </string-array>
+
+    <string-array name="ls_all_status_array">
+        <item>All</item>
+        <item>In Process</item>
+        <item>Pending</item>
+        <item>Resolved</item>
+    </string-array>
+
     <string-array name="calender_type">
         <item>Date</item>
         <item>Month</item>
@@ -77,4 +85,8 @@
     <string name="select_calender_type">Select Calender Type and Select Date</string>
     <string name="date">Date</string>
     <string name="see_analytics">See Analytics</string>
+    <string name="select_ls">Select LS</string>
+    <string name="unresolved_complaints">Unresolved Complaints</string>
+    <string name="resolved_complaints">Resolved Complaints</string>
+    <string name="select_sdo">Select SDO</string>
 </resources>

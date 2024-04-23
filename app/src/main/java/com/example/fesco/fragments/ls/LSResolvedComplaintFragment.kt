@@ -1,7 +1,6 @@
 package com.example.fesco.fragments.ls
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.LSUserComplaintAdp
 import com.example.fesco.databinding.FragmentLSResolvedComplaintBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,7 +22,6 @@ import java.util.Calendar
 class LSResolvedComplaintFragment : Fragment() {
 
     private lateinit var binding: FragmentLSResolvedComplaintBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var lsData: SharedPreferences
     private lateinit var adapter: LSUserComplaintAdp
@@ -46,7 +43,6 @@ class LSResolvedComplaintFragment : Fragment() {
         binding.lsUserResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
         lsData = requireActivity().getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getLsUserComplaintsID()
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -114,10 +110,12 @@ class LSResolvedComplaintFragment : Fragment() {
 
     private fun getLsUserComplaintsID() {
 
+        binding.progressbar.visibility = View.VISIBLE
+
         firestoreDb.collection("LS").document(lsData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -127,7 +125,7 @@ class LSResolvedComplaintFragment : Fragment() {
                     complaints?.let {
                         getLsUserComplaintDataFromDb(it)
                     } ?: run {
-                        LoadingDialog.hideLoadingDialog(loadingDialog)
+                        binding.progressbar.visibility = View.GONE
                     }
                 }
             }
@@ -136,7 +134,7 @@ class LSResolvedComplaintFragment : Fragment() {
     private fun getLsUserComplaintDataFromDb(complaintList: List<String>) {
 
         if (complaintList.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = View.GONE
             return
         }
 
@@ -144,7 +142,7 @@ class LSResolvedComplaintFragment : Fragment() {
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
@@ -155,8 +153,8 @@ class LSResolvedComplaintFragment : Fragment() {
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val complaint = documentSnapshot.toObject(UserComplaintModel::class.java)
                     complaint?.let {
-                        if (complaint?.status == "Resolved") {
-                            complaint?.let {
+                        if (complaint.status == "Resolved") {
+                            complaint.let {
                                 updatedComplaintList.add(it)
                             }
                         }
@@ -166,7 +164,7 @@ class LSResolvedComplaintFragment : Fragment() {
                 // Update the UI with the updated complaint list
                 updatedComplaintList.sortByDescending { it.dateTime }
                 setDataToRecycler(updatedComplaintList)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = View.GONE
             }
     }
 

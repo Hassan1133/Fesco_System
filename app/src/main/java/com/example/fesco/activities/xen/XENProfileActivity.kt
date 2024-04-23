@@ -22,7 +22,6 @@ class XENProfileActivity : AppCompatActivity(), OnClickListener {
     private lateinit var binding: ActivityXenprofileBinding
     private lateinit var firebaseUser: FirebaseUser
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var userEditPasswordDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +62,7 @@ class XENProfileActivity : AppCompatActivity(), OnClickListener {
         userEditPasswordDialogBinding.updateBtn.setOnClickListener {
             // When the user clicks on the update button
             if (isValidPassword()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(this)!!
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.VISIBLE
                 verifyUserCurrentPassword(firebaseUser.email!!, userEditPasswordDialogBinding.userCurrentPassword.text.toString())
             }
         }
@@ -82,7 +81,7 @@ class XENProfileActivity : AppCompatActivity(), OnClickListener {
                     updateUserPassword(userEditPasswordDialogBinding.userNewPassword.text.toString())
                 }
             }.addOnFailureListener { e ->
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 userEditPasswordDialogBinding.userCurrentPassword.error = "Password is invalid"
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
@@ -94,11 +93,11 @@ class XENProfileActivity : AppCompatActivity(), OnClickListener {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "User Password Updated Successfully", Toast.LENGTH_SHORT).show()
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                     userEditPasswordDialog.dismiss()
                 }
             }.addOnFailureListener { e ->
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
     }

@@ -3,15 +3,21 @@
     <item
         android:id="@+id/sdoUserNotResolvedComplaints"
         android:icon="@drawable/pending"
-        android:title="Unresolved Complaints" />
+        android:title="@string/unresolved_complaints" />
 
     <item
         android:id="@+id/sdoUserResolvedComplaints"
         android:icon="@drawable/solved"
-        android:title="Resolved Complaints" />
+        android:title="@string/resolved_complaints" />
 
     <item
         android:id="@+id/ls"
         android:icon="@drawable/baseline_supervised_user_circle_24"
-        android:title="LS" />
+        android:title="@string/ls" />
+
+    <item
+        android:id="@+id/analytics"
+        android:enabled="true"
+        android:icon="@drawable/analytics"
+        android:title="@string/analytics" />
 </menu>

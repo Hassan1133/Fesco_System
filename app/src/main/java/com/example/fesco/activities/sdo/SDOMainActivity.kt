@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.example.fesco.R
 import com.example.fesco.activities.common.LoginActivity
 import com.example.fesco.databinding.ActivitySdomainBinding
+import com.example.fesco.fragments.sdo.SDOAnalyticsFragment
 import com.example.fesco.fragments.sdo.SDOLSFragment
 import com.example.fesco.fragments.sdo.SDONotResolvedComplaintFragment
 import com.example.fesco.fragments.sdo.SDOResolvedComplaintFragment
@@ -144,6 +145,16 @@ class SDOMainActivity : AppCompatActivity(), OnClickListener {
                     loadFragment(SDOLSFragment())
                     return@OnItemSelectedListener true
                 }
+
+                R.id.analytics -> {
+                    loadFragment(SDOAnalyticsFragment())
+                    return@OnItemSelectedListener true
+                }
+
+                else -> {
+                    return@OnItemSelectedListener false
+                }
+
             }
             false
         })

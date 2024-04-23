@@ -36,7 +36,6 @@ import java.util.Calendar
 class LSNotResolvedComplaintFragment : Fragment() {
 
     private lateinit var binding: FragmentLSNotResolvedComplaintBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var lsData: SharedPreferences
     private lateinit var adapter: LSUserComplaintAdp
@@ -56,7 +55,6 @@ class LSNotResolvedComplaintFragment : Fragment() {
         binding.lsUserNotResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
         lsData = requireActivity().getSharedPreferences("lsData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getLsUserComplaintsID()
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -140,7 +138,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
         firestoreDb.collection("SDO").document(lsData.getString("sdo", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -252,10 +250,12 @@ class LSNotResolvedComplaintFragment : Fragment() {
     }
     private fun getLsUserComplaintsID() {
 
+        binding.progressbar.visibility = View.VISIBLE
+
         firestoreDb.collection("LS").document(lsData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -265,7 +265,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
                     complaints?.let {
                         getLsUserComplaintDataFromDb(it)
                     } ?: run {
-                        LoadingDialog.hideLoadingDialog(loadingDialog)
+                        binding.progressbar.visibility = View.GONE
                     }
                 }
             }
@@ -274,7 +274,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
     private fun getLsUserComplaintDataFromDb(complaintList: List<String>) {
 
         if (complaintList.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = View.GONE
             return
         }
 
@@ -282,7 +282,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
@@ -304,7 +304,7 @@ class LSNotResolvedComplaintFragment : Fragment() {
                 // Update the UI with the updated complaint list
                 updatedComplaintList.sortByDescending { it.dateTime }
                 setDataToRecycler(updatedComplaintList)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = View.GONE
             }
     }
 

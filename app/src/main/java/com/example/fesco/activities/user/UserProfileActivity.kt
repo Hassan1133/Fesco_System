@@ -22,7 +22,6 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivityUserProfileBinding
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var userEditPasswordDialog: Dialog
     private lateinit var usersRef: String // Variable to hold the reference to the users collection
     private lateinit var userData: SharedPreferences
@@ -75,7 +74,7 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
         userEditPasswordDialogBinding.updateBtn.setOnClickListener {
             // When the update button is clicked, verify and update the password
             if (isValidPassword()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(this)!!
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.VISIBLE
                 verifyUserCurrentPassword(
                     userData.getString("consumerID", "")!!,
                     userEditPasswordDialogBinding.userCurrentPassword.text.toString(),
@@ -96,12 +95,12 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
             if (it.getString("key") == currentKey) {
                 updateUserKey(id, newKey) // If current password is correct, update the password
             } else {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 userEditPasswordDialogBinding.userCurrentPassword.error =
                     "Incorrect current password" // Display error if current password is incorrect
             }
         }.addOnFailureListener {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
             Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show() // Show error message if retrieval fails
         }
     }
@@ -110,11 +109,11 @@ class UserProfileActivity : AppCompatActivity(), OnClickListener {
         // Update the user's password in the Firestore database
         firestoreDb.collection(usersRef).document(id).update("key", newKey)
             .addOnSuccessListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 userEditPasswordDialog.dismiss()
                 Toast.makeText(this, "Password Updated Successfully", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener {
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = View.GONE
                 Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
             }
     }

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/dialog_shape">
+        android:background="@drawable/dialog_shape"
+        tools:ignore="ScrollViewSize">
 
         <ImageView
             android:id="@+id/closeBtn"
@@ -44,6 +47,18 @@
                 android:textSize="14sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ProgressBar
+            android:id="@+id/dialogProgressbar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/complaintFeedbackLayout"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="10dp"
+            android:indeterminateTint="@color/app_color"
+            android:visibility="gone"
+            />
 
     </RelativeLayout>
 </ScrollView>

@@ -88,10 +88,12 @@ class LSLoginFragment : Fragment(), View.OnClickListener {
     }
 
     private fun signIn(email: String, password: String) {
+
+        loadingDialog = LoadingDialog.showLoadingDialog(activity)
+
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    loadingDialog = LoadingDialog.showLoadingDialog(activity)
                     checkLSExists(task.result.user!!.uid)
                 } else {
                     // Hide loading dialog and display error message

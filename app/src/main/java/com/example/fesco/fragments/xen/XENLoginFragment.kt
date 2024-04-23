@@ -77,10 +77,10 @@ class XENLoginFragment : Fragment(), View.OnClickListener {
     }
 
     private fun signIn(email: String, password: String) {
+        loadingDialog = LoadingDialog.showLoadingDialog(activity)
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
 
             if (it.isSuccessful) {
-                loadingDialog = LoadingDialog.showLoadingDialog(activity)
                 checkXENExists(it.result.user!!.uid)
             }
 

@@ -3,16 +3,17 @@ package com.example.fesco.activities.lm
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.View.OnClickListener
+import android.view.View.VISIBLE
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.fesco.R
 import com.example.fesco.databinding.ActivityLmprofileBinding
 import com.example.fesco.databinding.UserEditPasswordDialogBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -22,7 +23,6 @@ class LMProfileActivity : AppCompatActivity(), OnClickListener {
     private lateinit var binding: ActivityLmprofileBinding
     private lateinit var firebaseUser: FirebaseUser
     private lateinit var userEditPasswordDialogBinding: UserEditPasswordDialogBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var userEditPasswordDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +62,7 @@ class LMProfileActivity : AppCompatActivity(), OnClickListener {
         userEditPasswordDialogBinding.updateBtn.setOnClickListener {
             // When update button is clicked, verify current password and update if valid
             if (isValidPassword()) {
-                loadingDialog = LoadingDialog.showLoadingDialog(this)!!
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = VISIBLE
                 verifyUserCurrentPassword(firebaseUser.email!!, userEditPasswordDialogBinding.userCurrentPassword.text.toString())
             }
         }
@@ -83,7 +83,7 @@ class LMProfileActivity : AppCompatActivity(), OnClickListener {
                 }
             }.addOnFailureListener { e ->
                 // Handle authentication failure
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = GONE
                 userEditPasswordDialogBinding.userCurrentPassword.error = "Password is invalid"
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
@@ -96,12 +96,12 @@ class LMProfileActivity : AppCompatActivity(), OnClickListener {
                 if (task.isSuccessful) {
                     // Password updated successfully
                     Toast.makeText(this, "User Password Updated Successfully", Toast.LENGTH_SHORT).show()
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    userEditPasswordDialogBinding.dialogProgressbar.visibility = GONE
                     userEditPasswordDialog.dismiss()
                 }
             }.addOnFailureListener { e ->
                 // Handle password update failure
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                userEditPasswordDialogBinding.dialogProgressbar.visibility = GONE
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
     }

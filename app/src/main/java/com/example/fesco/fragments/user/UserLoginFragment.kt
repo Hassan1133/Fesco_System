@@ -65,7 +65,6 @@ class UserLoginFragment : Fragment(), OnClickListener {
 
                 if (isConnected) {
                     if (isDataValid()) {
-                        loadingDialog = LoadingDialog.showLoadingDialog(activity)
                         signIn()
                     }
                 } else {
@@ -91,6 +90,9 @@ class UserLoginFragment : Fragment(), OnClickListener {
     }
 
     private fun signIn() {
+
+        loadingDialog = LoadingDialog.showLoadingDialog(activity)
+
         firestoreDb.collection(usersRef).document(binding.consumerNo.text.toString()).get()
             .addOnSuccessListener {
                 if (it.exists()) {

@@ -3,20 +3,25 @@
 
     <item
         android:id="@+id/xenUserNotResolvedComplaints"
-        android:title="Unresolved Complaints"
+        android:title="@string/unresolved_complaints"
         android:icon="@drawable/pending"
         />
 
     <item
         android:id="@+id/xenUserResolvedComplaints"
-        android:title="Resolved Complaints"
+        android:title="@string/resolved_complains"
         android:icon="@drawable/solved"
         />
 
     <item
         android:id="@+id/sdo"
-        android:title="SDO"
+        android:title="@string/sdo"
         android:icon="@drawable/baseline_supervised_user_circle_24"
         />
 
+    <item
+        android:id="@+id/analytics"
+        android:enabled="true"
+        android:icon="@drawable/analytics"
+        android:title="@string/analytics" />
 </menu>

@@ -1,6 +1,5 @@
 package com.example.fesco.fragments.sdo
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.SDOLSAdp
 import com.example.fesco.databinding.FragmentSDOLSBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.LSModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -27,9 +25,6 @@ class SDOLSFragment : Fragment() {
 
     private lateinit var lsList: MutableList<LSModel>
 
-    private lateinit var loadingDialog: Dialog
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,7 +35,6 @@ class SDOLSFragment : Fragment() {
     }
 
     private fun init() {
-        loadingDialog = LoadingDialog.showLoadingDialog(activity)!!
         firestoreDb = Firebase.firestore
         lsList = mutableListOf<LSModel>()
         binding.lsRecycler.layoutManager = LinearLayoutManager(activity)
@@ -70,6 +64,9 @@ class SDOLSFragment : Fragment() {
     }
 
     private fun getSDOArrayFromSharedPreferences() {
+
+        binding.progressbar.visibility = View.VISIBLE
+
         val list = context?.getSharedPreferences("sdoData", AppCompatActivity.MODE_PRIVATE)
             ?.getString("ls", null)
             ?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
@@ -79,7 +76,7 @@ class SDOLSFragment : Fragment() {
 
     private fun getSdoDataFromDb(list: List<String>) {
         if (list.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = View.GONE
             return
         }
 
@@ -87,7 +84,7 @@ class SDOLSFragment : Fragment() {
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
@@ -98,14 +95,14 @@ class SDOLSFragment : Fragment() {
                 snapshots?.documents?.forEach { documentSnapshot ->
                     val ls = documentSnapshot.toObject(LSModel::class.java)
                     ls?.let {
-                        ls?.let {
+                        ls.let {
                             lsList.add(it)
                         }
                     }
                 }
 
                 setDataToRecycler(lsList)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = View.GONE
             }
     }
 
@@ -116,6 +113,6 @@ class SDOLSFragment : Fragment() {
             return
         }
         binding.lsRecycler.adapter = SDOLSAdp(requireActivity(),list)
-        LoadingDialog.hideLoadingDialog(loadingDialog)
+        binding.progressbar.visibility = View.GONE
     }
 }

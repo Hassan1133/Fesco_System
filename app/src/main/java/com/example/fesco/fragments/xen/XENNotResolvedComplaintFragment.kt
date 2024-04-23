@@ -1,7 +1,6 @@
 package com.example.fesco.fragments.xen
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fesco.adapters.XENUserComplaintAdp
 import com.example.fesco.databinding.FragmentXENNotResolvedComplaintBinding
-import com.example.fesco.main_utils.LoadingDialog
 import com.example.fesco.main_utils.NetworkManager
 import com.example.fesco.models.UserComplaintModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,7 +23,6 @@ import java.util.Calendar
 class XENNotResolvedComplaintFragment : Fragment() {
 
     private lateinit var binding: FragmentXENNotResolvedComplaintBinding
-    private lateinit var loadingDialog: Dialog
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var xenData: SharedPreferences
     private lateinit var adapter: XENUserComplaintAdp
@@ -45,7 +42,6 @@ class XENNotResolvedComplaintFragment : Fragment() {
         binding.xenUserNotResolvedComplaintsRecycler.layoutManager =
             LinearLayoutManager(requireActivity())
         xenData = requireActivity().getSharedPreferences("xenData", AppCompatActivity.MODE_PRIVATE)
-        loadingDialog = LoadingDialog.showLoadingDialog(requireActivity())
         getXENUserComplaintsID()
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -112,11 +108,11 @@ class XENNotResolvedComplaintFragment : Fragment() {
     }
 
     private fun getXENUserComplaintsID() {
-
+        binding.progressbar.visibility = View.VISIBLE
         firestoreDb.collection("XEN").document(xenData.getString("id", "")!!)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -126,7 +122,7 @@ class XENNotResolvedComplaintFragment : Fragment() {
                     complaints?.let {
                         getXENUserComplaintDataFromDb(it)
                     } ?: run {
-                        LoadingDialog.hideLoadingDialog(loadingDialog)
+                        binding.progressbar.visibility = View.GONE
                     }
                 }
             }
@@ -135,7 +131,7 @@ class XENNotResolvedComplaintFragment : Fragment() {
     private fun getXENUserComplaintDataFromDb(complaintList: List<String>) {
 
         if (complaintList.isEmpty()) {
-            LoadingDialog.hideLoadingDialog(loadingDialog)
+            binding.progressbar.visibility = View.GONE
             return
         }
 
@@ -143,7 +139,7 @@ class XENNotResolvedComplaintFragment : Fragment() {
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     // Handle exception
-                    LoadingDialog.hideLoadingDialog(loadingDialog)
+                    binding.progressbar.visibility = View.GONE
                     Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT)
                         .show()
                     return@addSnapshotListener
@@ -165,7 +161,7 @@ class XENNotResolvedComplaintFragment : Fragment() {
                 // Update the UI with the updated complaint list
                 updatedComplaintList.sortByDescending { it.dateTime }
                 setDataToRecycler(updatedComplaintList)
-                LoadingDialog.hideLoadingDialog(loadingDialog)
+                binding.progressbar.visibility = View.GONE
             }
     }
 

@@ -91,10 +91,12 @@ class LMLoginFragment : Fragment(), View.OnClickListener {
 
     // Sign in with email and password
     private fun signIn(email: String, password: String) {
+
+        loadingDialog = LoadingDialog.showLoadingDialog(activity)
+
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 // Check if LM exists after successful sign-in
-                loadingDialog = LoadingDialog.showLoadingDialog(activity)
                 checkLMExists(task.result.user!!.uid)
             }
         }.addOnFailureListener { exception ->

@@ -1,10 +1,13 @@
-package com.example.fesco.activities.ls
+package com.example.fesco.activities.xen
 
 import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.fesco.R
-import com.example.fesco.databinding.ActivityLslmanalyticsBinding
+import com.example.fesco.databinding.ActivityXensdoanalyticsBinding
 import com.example.fesco.models.UserComplaintModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
@@ -15,16 +18,17 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.firestore.FirebaseFirestore
 
-class LSLMAnalyticsActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityLslmanalyticsBinding
+class XENSDOAnalyticsActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityXensdoanalyticsBinding
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var updatedComplaintList: MutableList<UserComplaintModel>
-    private var lmId = ""
+    private var sdoId = ""
     private var status = ""
     private var date = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLslmanalyticsBinding.inflate(layoutInflater)
+        binding = ActivityXensdoanalyticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
     }
@@ -36,15 +40,15 @@ class LSLMAnalyticsActivity : AppCompatActivity() {
     }
 
     private fun getDataFromIntent() {
-        lmId = intent.getStringExtra("lmId")!!
+        sdoId = intent.getStringExtra("sdoId")!!
         status = intent.getStringExtra("status")!!
         date = intent.getStringExtra("date")!!
 
-        getLMUserComplaintsID()
+        getSDOUserComplaintsID()
     }
 
-    private fun getLMUserComplaintsID() {
-        firestoreDb.collection("LM").document(lmId)
+    private fun getSDOUserComplaintsID() {
+        firestoreDb.collection("SDO").document(sdoId)
             .addSnapshotListener { snapShot, exception ->
                 if (exception != null) {
 
@@ -54,7 +58,7 @@ class LSLMAnalyticsActivity : AppCompatActivity() {
                     val complaints = document.get("complaints") as? List<String>
                     complaints?.let {
                         // Fetch complaint details from Firestore
-                        getLMUserComplaintDataFromDb(it)
+                        getSDOUserComplaintDataFromDb(it)
                     } ?: run {
 
                     }
@@ -62,8 +66,8 @@ class LSLMAnalyticsActivity : AppCompatActivity() {
             }
     }
 
-    // Fetch details of LM user complaints from Firestore
-    private fun getLMUserComplaintDataFromDb(complaintList: List<String>) {
+    // Fetch details of LS user complaints from Firestore
+    private fun getSDOUserComplaintDataFromDb(complaintList: List<String>) {
         if (complaintList.isEmpty()) {
 
             return
